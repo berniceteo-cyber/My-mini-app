@@ -78,6 +78,8 @@
   .pick.colors button { border-radius: 50%; }
   .pick.colors button.on { border-color: var(--ink); }
   .pick.people button { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; color: var(--ink); }
+  .center { text-align: center; align-items: center; padding: 40px 16px; }
+  .busy { opacity: .6; pointer-events: none; }
   .toast { position: fixed; left: 12px; right: 12px; bottom: 84px; z-index: 6; background: #1E2A22; color: #fff; border-radius: 14px;
            padding: 10px 10px 10px 16px; display: flex; align-items: center; gap: 12px; font-size: 15px; animation: pop .3s ease; }
   .toast span { flex: 1; }
@@ -86,16 +88,16 @@
   nav button { border: none; background: none; font-size: 12px; font-weight: 700; color: #5F6B63; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
   nav button span { font-size: 22px; }
   nav button.active { color: var(--green); }
-</style>
-</head>
+  body.busy main { opacity: .6; pointer-events: none; }
+</style></head>
 <body>
 <header>
   <button class="back" id="back" aria-label="Back" hidden>‹</button>
   <h1 id="title">CG Hub</h1>
   <button class="me-btn" id="me-btn" aria-label="My profile"></button>
 </header>
-<main id="app"></main>
-<nav>
+<main id="app"><p class="sub" style="text-align:center;margin-top:40px">Loading our garden… 🌱</p></main>
+<nav id="nav">
   <button data-tab="home"><span>🏠</span>Home</button>
   <button data-tab="events"><span>📅</span>Events</button>
   <button data-tab="cg"><span>👥</span>Our CG</button>
@@ -104,11 +106,11 @@
 
 <script>
 // ================= SETTINGS YOU CAN CHANGE =================
-const BOT_LINK = "https://t.me/BEGROWINGbot";   // link people get when you invite them
+const API_URL  = "https://ylojbxsdvoesdhwbjtfo.supabase.co/functions/v1/api";  // your Supabase security guard
+const BOT_LINK = "https://t.me/BEGROWINGbot";                                // link people get when you invite them
 const AVATARS = ["🦁","🐻","🐼","🦊","🐨","🐯","🐸","🐧","🦉","🐳","🦋","🌻"];
 const COLORS  = ["#F2C76B","#9AD0A8","#9CC3EA","#F4A99B","#C9B6E8","#F7C59F"];
 
-// Moments that add a ring to the tree (any order)
 const MILESTONES = [
   { key: "metcg",   icon: "🤝", label: "Met the CG" },
   { key: "church",  icon: "⛪", label: "Stepped into church" },
@@ -117,30 +119,27 @@ const MILESTONES = [
   { key: "fp",      icon: "📖", label: "Started FP" }
 ];
 const STAGES = ["Seedling", "Growing", "Taking root", "Strong tree", "Deeply rooted"];
-// What a seed becomes is decided only as milestones happen, by the pace
-// (average months per milestone). Fruit appears at Salvation.
 const KINDS = [
   { pace: 1,        fruit: "🍓", name: "strawberry plant", looks: ["🌱","🌿","☘️","🌼","🌼","🌼"] },
   { pace: 3,        fruit: "🍊", name: "orange tree",      looks: ["🌱","🌿","🪴","🌳","🌳","🌳"] },
   { pace: Infinity, fruit: "🥥", name: "coconut palm",     looks: ["🌱","🌿","🪴","🌴","🌴","🌴"] }
 ];
-// Prayer badges (earned by watering)
 const BADGES = [
-  { icon: "💧", name: "First Drop",      how: "Pray once",               got: (p) => p.count >= 1 },
-  { icon: "🌦️", name: "Spring Shower",   how: "Pray 10 times",           got: (p) => p.count >= 10 },
-  { icon: "🌧️", name: "Rain of Prayer",  how: "Pray 25 times",           got: (p) => p.count >= 25 },
-  { icon: "🌊", name: "River of Prayer", how: "Pray 50 times",           got: (p) => p.count >= 50 },
-  { icon: "🏆", name: "Prayer Warrior",  how: "Pray 100 times",          got: (p) => p.count >= 100 },
-  { icon: "🔥", name: "On Fire",         how: "3 days in a row",         got: () => streak() >= 3 },
-  { icon: "⭐", name: "Faithful Week",   how: "7 days in a row",         got: () => streak() >= 7 },
-  { icon: "🤲", name: "Big Heart",       how: "Pray for 3 friends",      got: (p) => p.seeds.length >= 3 }
+  { icon: "💧", name: "First Drop",      how: "Pray once",          got: (p) => p.count >= 1 },
+  { icon: "🌦️", name: "Spring Shower",   how: "Pray 10 times",      got: (p) => p.count >= 10 },
+  { icon: "🌧️", name: "Rain of Prayer",  how: "Pray 25 times",      got: (p) => p.count >= 25 },
+  { icon: "🌊", name: "River of Prayer", how: "Pray 50 times",      got: (p) => p.count >= 50 },
+  { icon: "🏆", name: "Prayer Warrior",  how: "Pray 100 times",     got: (p) => p.count >= 100 },
+  { icon: "🔥", name: "On Fire",         how: "3 days in a row",    got: () => streak() >= 3 },
+  { icon: "⭐", name: "Faithful Week",   how: "7 days in a row",    got: () => streak() >= 7 },
+  { icon: "🤲", name: "Big Heart",       how: "Pray for 3 friends", got: (p) => p.seeds.length >= 3 }
 ];
 
 // ================= HELPERS =================
 const DAY = 86400000;
-const daysAgo = (d) => new Date(Date.now() - d * DAY).toISOString();
-const dayFromNow = (d) => new Date(Date.now() + d * DAY).toISOString().slice(0, 10);
-const todayKey = (d) => (d || new Date()).toISOString().slice(0, 10);
+const localDay = (d) => new Date(d).toLocaleDateString("en-CA");          // YYYY-MM-DD in your time zone
+const todayKey = () => localDay(Date.now());
+const dayFromNow = (n) => localDay(Date.now() + n * DAY);
 const esc = (t) => String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const an = (w) => (/^[aeiou]/i.test(w) ? "an " : "a ") + w;
 const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
@@ -149,45 +148,48 @@ const monthText = (n) => n < 1 ? "under a month" : plural(n, "month");
 const shortDate = (iso) => new Date(iso).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" });
 const fmtDate = (d) => new Date(d + "T00:00").toLocaleDateString("en-SG", { weekday: "short", day: "numeric", month: "short" });
 const fmtTime = (t) => { if (!t) return ""; const [h, m] = t.split(":").map(Number); return ((h % 12) || 12) + ":" + String(m).padStart(2, "0") + (h < 12 ? " AM" : " PM"); };
-function avatar(p, size) {
-  size = size || 40;
-  return `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.55)}px;background:${p.color}">${p.avatar}</span>`;
+const avatar = (p, size) => { size = size || 40;
+  return `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.55)}px;background:${esc(p.color)}">${esc(p.avatar)}</span>`; };
+
+// ================= TALKING TO THE DATABASE =================
+const tg = window.Telegram && Telegram.WebApp;
+async function api(action, params) {
+  const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.assign({ initData: (tg && tg.initData) || "", action: action }, params || {})) });
+  const out = await res.json().catch(() => ({ error: "Couldn’t reach the server. Check your internet." }));
+  if (!res.ok || out.error) throw new Error(out.error || "Something went wrong.");
+  return out;
 }
 
-// ================= DATA (sample only — fake names) =================
-const tg = window.Telegram && Telegram.WebApp;
-const tgName = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) || "";
-let db = {
-  profile: null,
-  members: [
-    { id: "a", name: "Member A", role: "CG Leader",    avatar: "🦁", color: "#F2C76B" },
-    { id: "b", name: "Member B", role: "Asst. Leader", avatar: "🐼", color: "#9CC3EA" },
-    { id: "c", name: "Member C", role: "",             avatar: "🦊", color: "#F4A99B" },
-    { id: "d", name: "Member D", role: "",             avatar: "🐸", color: "#9AD0A8" },
-    { id: "e", name: "Member E", role: "",             avatar: "🦉", color: "#C9B6E8" }
-  ],
-  events: [
-    { id: 1, type: "cg",     title: "CG Night: Worship & Word", date: dayFromNow(8),  time: "20:00", place: "[Venue]", by: "a", invited: ["a","b","c","d","e"], going: ["a","b","d"], friend: null },
-    { id: 2, type: "outing", title: "Lunch after service",      date: dayFromNow(10), time: "12:30", place: "[Venue]", by: "b", invited: ["a","b","c"],         going: ["b","c"],     friend: 2 },
-    { id: 3, type: "outing", title: "Badminton night",          date: dayFromNow(13), time: "19:30", place: "[Venue]", by: "d", invited: ["a","d","e"],         going: ["d"],         friend: null }
-  ],
-  seeds: [
-    { id: 1, nick: "Friend J", by: "b", outing: "Coffee catch-up", waters: 1, plantedAt: daysAgo(14), milestones: {},
-      notes: [{ by: "b", text: "Lord, open the door for a good conversation this week.", at: daysAgo(3) }] },
-    { id: 2, nick: "Friend K", by: "a", outing: "Badminton", waters: 22, plantedAt: daysAgo(150), milestones: { metcg: daysAgo(100), church: daysAgo(40) },
-      notes: [{ by: "d", text: "Praying for peace in a stressful season at work.", at: daysAgo(5) }] },
-    { id: 3, nick: "Friend L", by: "d", outing: "Birthday dinner", waters: 41, plantedAt: daysAgo(430),
-      milestones: { metcg: daysAgo(380), church: daysAgo(300), saved: daysAgo(30), fp: daysAgo(10) }, notes: [] }
-  ],
-  prayers: { count: 0, days: [], seeds: [] }
-};
-// Everything is remembered on this phone (until we add a shared database)
-try { const saved = JSON.parse(localStorage.getItem("cg-hub-v3")); if (saved) db = saved; } catch (e) {}
-function save() { try { localStorage.setItem("cg-hub-v3", JSON.stringify(db)); } catch (e) {} }
+// The shared data, turned into a shape the screens can use
+let status = "loading", meRow = null, members = [], pending = [], seeds = [], events = [], myPrayers = { count: 0, days: [], seeds: [] };
+async function refresh() {
+  const d = await api("load");
+  status = d.status; meRow = d.me;
+  if (status !== "approved") return;
+  const myId = d.me.telegram_id;
+  const toPerson = (m) => ({ id: String(m.telegram_id), name: m.name, avatar: m.avatar, color: m.color, role: m.role, leader: m.is_leader });
+  members = d.members.map(toPerson);
+  pending = d.pending.map(toPerson);
+  seeds = d.seeds.map((s) => ({
+    id: s.id, nick: s.nick, outing: s.outing || "No outing logged yet", by: String(s.planted_by), plantedAt: s.planted_at, milestones: s.milestones || {},
+    waters: d.prayers.filter((p) => p.seed_id === s.id).length,
+    notes: d.notes.filter((n) => n.seed_id === s.id).map((n) => ({ id: n.id, by: String(n.by_member), text: n.text, at: n.created_at }))
+  }));
+  events = d.events.map((e) => ({
+    id: e.id, type: e.type, title: e.title, date: e.date, time: e.time, place: e.place, by: String(e.created_by),
+    invited: (e.invited || []).map(String), friend: e.friend_seed,
+    going: d.rsvps.filter((r) => r.event_id === e.id).map((r) => String(r.member_id))
+  }));
+  const mine = d.prayers.filter((p) => p.by_member === myId);
+  myPrayers = { count: mine.length, days: [...new Set(mine.map((p) => localDay(p.created_at)))], seeds: [...new Set(mine.map((p) => p.seed_id))] };
+}
 
-function me() { return Object.assign({ id: "me", name: tgName || "You", avatar: "🌻", color: "#F2C76B", role: "" }, db.profile || {}); }
-function person(id) { return id === "me" ? me() : (db.members.find((m) => m.id === id) || { name: "Someone", avatar: "🙂", color: "#E2E6DE" }); }
-const seedById = (id) => db.seeds.find((s) => s.id === id);
+function me() { return meRow ? { id: String(meRow.telegram_id), name: meRow.name, avatar: meRow.avatar, color: meRow.color, role: meRow.role, leader: meRow.is_leader }
+                             : { id: "", name: "You", avatar: "🌻", color: "#F2C76B", role: "" }; }
+const person = (id) => members.find((m) => m.id === String(id)) || { name: "Someone", avatar: "🙂", color: "#E2E6DE" };
+const seedById = (id) => seeds.find((s) => s.id === Number(id));
+const eventById = (id) => events.find((e) => e.id === Number(id));
 
 // ================= SEED LOGIC =================
 function kindOf(s) {
@@ -207,63 +209,104 @@ function fruitOf(s) {
   return Object.assign({ months: Math.max(0, Math.round(monthsBetween(s.plantedAt, s.milestones.saved))), tree: k.looks[5] }, k);
 }
 function streak() {
-  let n = 0, d = new Date();
-  if (!db.prayers.days.includes(todayKey(d))) d = new Date(Date.now() - DAY);
-  while (db.prayers.days.includes(todayKey(d))) { n++; d = new Date(d - DAY); }
+  let n = 0, t = Date.now();
+  if (!myPrayers.days.includes(localDay(t))) t -= DAY;
+  while (myPrayers.days.includes(localDay(t))) { n++; t -= DAY; }
   return n;
 }
-const earned = () => BADGES.filter((b) => b.got(db.prayers)).map((b) => b.name);
+const earned = () => BADGES.filter((b) => b.got(myPrayers)).map((b) => b.name);
+function timeGrowing(s) {
+  const d = Math.floor((Date.now() - new Date(s.plantedAt)) / DAY);
+  if (d < 14) return plural(d, "day");
+  if (d < 60) return plural(Math.floor(d / 7), "week");
+  return plural(Math.round(d / 30.44), "month");
+}
 
 // ================= APP STATE =================
-let screen = "home", currentId = null, justWatered = false, celebrate = "", undoStack = [], draft = {};
-const backTo = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", profile: "home", addmember: "cg" };
+let screen = "home", currentId = null, justWatered = false, celebrate = "", undoStack = [], draft = {}, busy = false;
+const backTo = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", profile: "home" };
 const titles = { home: "CG Hub", events: "Events & Outings", event: "Event", newevent: "Plan an outing", cg: "Our CG",
-                 addmember: "Add a member", seeds: "Seeds", seed: "Seed", plant: "Plant a seed", profile: "My profile" };
+                 seeds: "Seeds", seed: "Seed", plant: "Plant a seed", profile: "My profile" };
 
 function go(to, id) {
   screen = to; currentId = id == null ? null : id; justWatered = false; celebrate = ""; undoStack = [];
   if (to === "profile") { const m = me(); draft = { name: m.name, avatar: m.avatar, color: m.color }; }
-  if (to === "newevent") draft = { type: "outing", title: "", date: dayFromNow(7), time: "19:00", place: "", invited: ["me"], friend: "" };
-  if (to === "addmember") draft = { name: "", role: "", avatar: AVATARS[0], color: COLORS[1] };
+  if (to === "newevent") draft = { type: "outing", title: "", date: dayFromNow(7), time: "19:00", place: "", invited: [me().id], friend: "" };
+  if (to === "seed" || to === "plant") draft = {};
   render(); window.scrollTo(0, 0);
 }
 function setDraft(k, v) { draft[k] = v; }
 function pickDraft(k, v) { draft[k] = v; render(); }
 function toggleInvite(id) { draft.invited = draft.invited.includes(id) ? draft.invited.filter((x) => x !== id) : draft.invited.concat(id); render(); }
 
+// Runs an action, reloads the shared data, and shows any error nicely
+async function run(fn) {
+  if (busy) return; busy = true; document.body.classList.add("busy");
+  try { await fn(); await refresh(); }
+  catch (e) { alert(e.message); try { await refresh(); } catch (_) {} }
+  finally { busy = false; document.body.classList.remove("busy"); render(); }
+}
+
 // ================= SCREENS =================
 function render() {
   const app = document.getElementById("app"), m = me();
+  const inApp = status === "approved";
+  document.getElementById("nav").style.display = inApp ? "" : "none";
+  document.getElementById("me-btn").innerHTML = meRow ? avatar(m, 36) : "";
+
+  if (status === "outside") {
+    document.getElementById("title").textContent = "CG Hub";
+    document.getElementById("back").hidden = true;
+    app.innerHTML = `<div class="card" style="text-align:center;align-items:center"><p style="font-size:60px;margin:0">🌱</p>
+      <p class="big">Please open CG Hub inside Telegram</p><p class="sub">For everyone’s privacy, this app only works from our Telegram bot.</p>
+      <a class="btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="${BOT_LINK}">Open in Telegram</a></div>`;
+    return;
+  }
+  if (status === "error") {
+    app.innerHTML = `<div class="card"><p class="big">Couldn’t load the garden</p><p class="sub">${esc(loadError)}</p>
+      <button class="btn" onclick="start()">Try again</button></div>`;
+    return;
+  }
+  if (status === "pending" && screen !== "profile") {
+    document.getElementById("title").textContent = "Welcome!";
+    document.getElementById("back").hidden = true;
+    app.innerHTML = `<div class="card" style="text-align:center;align-items:center">${avatar(m, 90)}
+      <p class="big">Hi ${esc(m.name)}! 👋</p>
+      <p class="sub">You’re almost in. Your CG leader needs to approve you first. Let them know you’ve opened CG Hub.</p>
+      <button class="btn outline" onclick="go('profile')">Set up my profile while I wait</button>
+      <button class="btn" onclick="run(async () => {})">Check again</button></div>`;
+    return;
+  }
+
   document.getElementById("title").textContent = titles[screen];
-  document.getElementById("back").hidden = !backTo[screen];
-  document.getElementById("me-btn").innerHTML = avatar(m, 36);
-  const tab = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", addmember: "cg", profile: "home" }[screen] || screen;
+  document.getElementById("back").hidden = !backTo[screen] || (status === "pending");
+  const tab = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", profile: "home" }[screen] || screen;
   document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
-  const upcoming = db.events.filter((e) => e.date >= todayKey()).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  const upcoming = events.filter((e) => e.date >= todayKey()).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 
   if (screen === "home") {
-    const total = db.seeds.reduce((a, s) => a + s.waters, 0), fruits = db.seeds.filter((s) => s.milestones.saved).length;
+    const total = seeds.reduce((a, s) => a + s.waters, 0), fruits = seeds.filter((s) => s.milestones.saved).length;
     const e = upcoming[0], st = streak(), got = earned();
     app.innerHTML = `
       <div class="hero">
         <button class="me-btn" onclick="go('profile')" aria-label="Edit my profile">${avatar(m, 60)}</button>
         <div style="display:flex;flex-direction:column;gap:6px">
           <p class="hi">Hi, ${esc(m.name)}!</p>
-          <p><span class="chip">💧 ${plural(db.prayers.count, "prayer")}</span> ${st > 1 ? `<span class="chip">🔥 ${st}-day streak</span>` : ""}</p>
+          <p><span class="chip">💧 ${plural(myPrayers.count, "prayer")}</span> ${st > 1 ? `<span class="chip">🔥 ${st}-day streak</span>` : ""}</p>
         </div>
       </div>
-      ${db.profile ? "" : `<div class="card" style="background:var(--gold-soft);border-color:var(--gold)"><p class="big">Make it yours</p>
-        <p class="sub">Pick an avatar so your CG knows it’s you.</p><button class="btn" onclick="go('profile')">Create my profile</button></div>`}
+      ${pending.length ? `<button class="card item" style="background:var(--gold-soft);border-color:var(--gold)" onclick="go('cg')">
+        <span style="font-size:28px">🙋</span><div><p class="big" style="font-size:16px">${plural(pending.length, "person")} waiting to join</p><p class="sub">Tap to approve</p></div></button>` : ""}
       <div class="card"><p class="label">Our garden</p>
-        <div class="garden">${db.seeds.map((s) => { const sg = stage(s), fr = fruitOf(s); return `
+        ${seeds.length ? `<div class="garden">${seeds.map((s) => { const sg = stage(s), fr = fruitOf(s); return `
           <button class="gplant" onclick="go('seed', ${s.id})"><span style="font-size:${30 + sg.rings * 7}px;line-height:1">${fr ? fr.fruit : sg.icon}</span><small>${esc(s.nick)}</small></button>`; }).join("")}
-        </div>
+        </div>` : `<p class="sub">No seeds yet. Plant the first one! 🌱</p>`}
         <div class="row">
-          <div class="stat" style="background:var(--green-soft)"><b style="color:var(--green-dark)">${db.seeds.length}</b>seeds planted</div>
+          <div class="stat" style="background:var(--green-soft)"><b style="color:var(--green-dark)">${seeds.length}</b>seeds planted</div>
           <div class="stat" style="background:var(--blue-soft)"><b style="color:var(--blue)">${total}</b>times watered</div>
           <div class="stat" style="background:var(--gold-soft)"><b style="color:#7A4B00">${fruits}</b>bore fruit</div>
         </div>
-        <button class="btn outline" onclick="go('seeds')">Water a seed 💧</button></div>
+        <button class="btn outline" onclick="go('seeds')">${seeds.length ? "Water a seed 💧" : "Plant a seed 🌱"}</button></div>
       ${e ? `<div class="card"><p class="label">Next up</p>
         <div class="item"><div class="tile"><small>${fmtDate(e.date).split(" ")[2].toUpperCase()}</small><span>${fmtDate(e.date).split(" ")[1]}</span></div>
           <div style="flex:1"><p class="big" style="font-size:16px">${esc(e.title)}</p><p class="sub">${fmtDate(e.date)} · ${fmtTime(e.time)}</p></div></div>
@@ -290,7 +333,10 @@ function render() {
   }
 
   if (screen === "event") {
-    const e = db.events.find((x) => x.id === currentId), mine = e.going.includes("me"), host = person(e.by), fr = e.friend ? seedById(e.friend) : null;
+    const e = eventById(currentId);
+    if (!e) { app.innerHTML = `<p class="sub">This event isn’t available anymore.</p>`; return; }
+    const mine = e.going.includes(m.id), host = person(e.by), fr = e.friend ? seedById(e.friend) : null;
+    const canCancel = e.by === m.id || m.leader;
     app.innerHTML = `
       <div class="card">
         <span class="chip" style="align-self:flex-start">${e.type === "cg" ? "🙏 CG event" : "🎉 Outing"}</span>
@@ -306,58 +352,57 @@ function render() {
         <button class="btn grey" onclick="rsvp(false)">${mine ? "Can’t make it" : "Not this time"}</button>
       </div>
       <div class="card"><p class="label">Going · ${e.going.length}</p>
-        <div class="pick">${e.going.length ? e.going.map((id) => `<span title="${esc(person(id).name)}">${avatar(person(id), 40)}</span>`).join("") : `<span class="sub">Be the first!</span>`}</div>
+        <div class="pick">${e.going.length ? e.going.map((id) => avatar(person(id), 40)).join("") : `<span class="sub">Be the first!</span>`}</div>
         <p class="label">Invited · ${e.invited.length}</p>
-        <div class="pick">${e.invited.map((id) => `<span title="${esc(person(id).name)}">${avatar(person(id), 34)}</span>`).join("")}</div></div>
+        <div class="pick">${e.invited.map((id) => avatar(person(id), 34)).join("")}</div></div>
       <button class="btn blue" onclick="shareEvent(${e.id})">📨 Invite via Telegram</button>
-      <p class="sub" style="font-size:13px;text-align:center">Sends the event details to any chat you pick, with a link to our CG Hub.</p>`;
+      <p class="sub" style="font-size:13px;text-align:center">Sends the event details to any chat you pick, with a link to CG Hub.</p>
+      ${canCancel ? `<button class="btn dashed" onclick="cancelEvent(${e.id})">Cancel this event</button>` : ""}`;
   }
 
   if (screen === "newevent") {
-    const people = [me()].concat(db.members);
     app.innerHTML = `
-      <div class="field"><label>Type</label>
+      ${m.leader ? `<div class="field"><label>Type</label>
         <div class="pick people"><button class="${draft.type === "outing" ? "on" : ""}" onclick="pickDraft('type','outing')">🎉 Outing</button>
-        <button class="${draft.type === "cg" ? "on" : ""}" onclick="pickDraft('type','cg')">🙏 CG event</button></div></div>
+        <button class="${draft.type === "cg" ? "on" : ""}" onclick="pickDraft('type','cg')">🙏 CG event</button></div></div>` : ""}
       <div class="field"><label for="t">What’s the plan?</label><input id="t" value="${esc(draft.title)}" oninput="setDraft('title', this.value)" placeholder="e.g. Bowling night"></div>
       <div class="row"><div class="field" style="flex:1"><label for="d">Date</label><input id="d" type="date" value="${draft.date}" oninput="setDraft('date', this.value)"></div>
         <div class="field" style="flex:1"><label for="tm">Time</label><input id="tm" type="time" value="${draft.time}" oninput="setDraft('time', this.value)"></div></div>
       <div class="field"><label for="pl">Where?</label><input id="pl" value="${esc(draft.place)}" oninput="setDraft('place', this.value)" placeholder="e.g. Bowling alley"></div>
       <div class="field"><label>Invite members</label>
-        <div class="pick people">${people.map((p) => `<button class="${draft.invited.includes(p.id) ? "on" : ""}" onclick="toggleInvite('${p.id}')">${avatar(p, 32)}${esc(p.id === "me" ? "Me" : p.name)}</button>`).join("")}</div></div>
+        <div class="pick people">${members.map((p) => `<button class="${draft.invited.includes(p.id) ? "on" : ""}" onclick="toggleInvite('${p.id}')">${avatar(p, 32)}${esc(p.id === m.id ? "Me" : p.name)}</button>`).join("")}</div></div>
       <div class="field"><label for="fr">Bringing a friend? (optional)</label>
         <select id="fr" onchange="setDraft('friend', this.value)"><option value="">No one this time</option>
-        ${db.seeds.map((s) => `<option value="${s.id}" ${String(draft.friend) === String(s.id) ? "selected" : ""}>🌱 ${esc(s.nick)}</option>`).join("")}</select></div>
+        ${seeds.map((s) => `<option value="${s.id}" ${String(draft.friend) === String(s.id) ? "selected" : ""}>🌱 ${esc(s.nick)}</option>`).join("")}</select></div>
       <button class="btn" onclick="saveEvent()">Create & invite</button>`;
   }
 
   if (screen === "cg") {
-    const people = [me()].concat(db.members);
-    app.innerHTML = `<p class="sub">${plural(people.length, "member")}</p><div class="card">` +
-      people.map((p) => `
-        <div class="item">${avatar(p, 48)}
-          <div style="flex:1"><p class="big" style="font-size:16px">${esc(p.name)}${p.id === "me" ? " (you)" : ""}</p>
-          ${p.role ? `<span class="chip">${esc(p.role)}</span>` : ""}</div>
-          ${p.id === "me" ? `<button class="btn outline" style="width:auto;min-height:40px" onclick="go('profile')">Edit</button>` : ""}
-        </div>`).join("") +
-      `</div><button class="btn dashed" onclick="go('addmember')">+ Add member (leaders)</button>
-      <p class="sub" style="font-size:13px">When we add the shared database, members will sign in automatically with their Telegram account, with no passwords needed.</p>`;
-  }
-
-  if (screen === "addmember") {
     app.innerHTML = `
-      <div style="display:flex;justify-content:center">${avatar(draft, 96)}</div>
-      <div class="field"><label for="mn">Name</label><input id="mn" value="${esc(draft.name)}" oninput="setDraft('name', this.value)" placeholder="First name or nickname"></div>
-      <div class="field"><label for="mr">Role (optional)</label><input id="mr" value="${esc(draft.role)}" oninput="setDraft('role', this.value)" placeholder="e.g. Asst. Leader"></div>
-      ${avatarPicker()}
-      <button class="btn" onclick="saveMember()">Add to CG</button>`;
+      ${pending.length ? `<div class="card" style="border-color:var(--gold)"><p class="label">Waiting to join · ${pending.length}</p>
+        ${pending.map((p) => `<div class="item">${avatar(p, 44)}<p class="big" style="font-size:16px;flex:1">${esc(p.name)}</p>
+          <button class="btn" style="width:auto;min-height:44px" onclick="decide('${p.id}', true)">Approve</button>
+          <button class="btn grey" style="width:auto;min-height:44px" onclick="decide('${p.id}', false)">Decline</button></div>`).join("")}
+        <p class="sub" style="font-size:13px">Only approve people you know are in our CG.</p></div>` : ""}
+      <p class="sub">${plural(members.length, "member")}</p><div class="card">` +
+      members.map((p) => `
+        <div class="item">${avatar(p, 48)}
+          <div style="flex:1"><p class="big" style="font-size:16px">${esc(p.name)}${p.id === m.id ? " (you)" : ""}</p>
+          ${p.role ? `<span class="chip">${esc(p.role)}</span>` : ""}</div>
+          ${p.id === m.id ? `<button class="btn outline" style="width:auto;min-height:40px" onclick="go('profile')">Edit</button>` : ""}
+        </div>`).join("") +
+      `</div><button class="btn blue" onclick="inviteMembers()">📨 Invite CG members</button>
+      <p class="sub" style="font-size:13px">New members open CG Hub with their own Telegram account, and a leader approves them here. No passwords needed.</p>`;
   }
 
   if (screen === "profile") {
     app.innerHTML = `
       <div style="display:flex;justify-content:center">${avatar(draft, 110)}</div>
-      <div class="field"><label for="pn">Your name</label><input id="pn" value="${esc(draft.name)}" oninput="setDraft('name', this.value)"></div>
-      ${avatarPicker()}
+      <div class="field"><label for="pn">Your name</label><input id="pn" value="${esc(draft.name)}" oninput="setDraft('name', this.value)" maxlength="40"></div>
+      <div class="field"><label>Pick an avatar</label>
+        <div class="pick">${AVATARS.map((a) => `<button class="${draft.avatar === a ? "on" : ""}" onclick="pickDraft('avatar','${a}')" aria-label="Avatar ${a}">${a}</button>`).join("")}</div></div>
+      <div class="field"><label>Pick a colour</label>
+        <div class="pick colors">${COLORS.map((c) => `<button class="${draft.color === c ? "on" : ""}" style="background:${c}" onclick="pickDraft('color','${c}')" aria-label="Colour ${c}"></button>`).join("")}</div></div>
       <button class="btn" onclick="saveProfile()">Save my profile</button>`;
   }
 
@@ -366,18 +411,20 @@ function render() {
       <div class="verse">“I have planted, Apollos watered; but God gave the increase.”<b>1 Corinthians 3:6</b></div>
       <button class="btn" onclick="go('plant')">+ Plant a seed</button>
       <p class="sub">Everyone in our CG can water these. Nicknames only.</p>` +
-      db.seeds.map((s) => { const sg = stage(s), fr = fruitOf(s), done = MILESTONES.filter((x) => s.milestones[x.key]).map((x) => x.icon).join(" ");
+      seeds.map((s) => { const sg = stage(s), fr = fruitOf(s), done = MILESTONES.filter((x) => s.milestones[x.key]).map((x) => x.icon).join(" ");
         return `
         <button class="card item" onclick="go('seed', ${s.id})">
           <div class="badge">${fr ? fr.fruit : sg.icon}</div>
           <div style="flex:1"><p class="big" style="font-size:16px">${esc(s.nick)}</p>
           <p class="sub">${fr ? "Bore fruit · " + fr.name : sg.label}</p>
-          <p class="sub" style="font-size:13px">🟤 ${plural(sg.rings, "ring")} · 💧 ${plural(s.waters, "prayer")} · 💬 ${(s.notes || []).length}${done ? " · " + done : ""}</p></div>
+          <p class="sub" style="font-size:13px">🟤 ${plural(sg.rings, "ring")} · 💧 ${plural(s.waters, "prayer")} · 💬 ${s.notes.length}${done ? " · " + done : ""}</p></div>
         </button>`; }).join("");
   }
 
   if (screen === "seed") {
-    const s = seedById(currentId), sg = stage(s), fr = fruitOf(s), planter = person(s.by), anim = justWatered || celebrate ? "grow" : "";
+    const s = seedById(currentId);
+    if (!s) { app.innerHTML = `<p class="sub">This seed isn’t available anymore.</p>`; return; }
+    const sg = stage(s), fr = fruitOf(s), planter = person(s.by), anim = justWatered || celebrate ? "grow" : "";
     const art = fr
       ? `<span class="plant ${anim}" style="font-size:${Math.max(120, sg.size)}px">${fr.tree}</span>
          <span class="fruit" style="left:38%;top:30px">${fr.fruit}</span><span class="fruit" style="left:56%;top:52px">${fr.fruit}</span><span class="fruit" style="left:44%;top:78px">${fr.fruit}</span>`
@@ -397,7 +444,7 @@ function render() {
           <textarea id="pm" maxlength="280" placeholder="e.g. Lord, give ${esc(s.nick)} peace this week." oninput="setDraft('note', this.value)">${esc(draft.note || "")}</textarea></div>
         <button class="btn blue" onclick="postNote()">Post prayer & water 💧</button>
         <p class="sub" style="font-size:12px">Keep it short and kind. Don’t include personal details about your friend.</p>
-        ${(s.notes || []).slice().reverse().map((n) => { const p = person(n.by); return `
+        ${s.notes.slice().reverse().map((n) => { const p = person(n.by); return `
           <div class="msg">${avatar(p, 36)}<div class="bubble"><small>${esc(p.name)} · ${shortDate(n.at)}</small>${esc(n.text)}</div></div>`; }).join("")}
       </div>
       <div class="card"><p class="label">Milestones</p>
@@ -414,125 +461,124 @@ function render() {
   if (screen === "plant") {
     app.innerHTML = `
       <p class="sub">Plant a seed for a friend you’re reaching out to. Use a nickname or initials only, never their full name.</p>
-      <div class="field"><label for="nick">Friend’s nickname</label><input id="nick" placeholder="e.g. Friend M"></div>
-      <div class="field"><label for="outing">Outing (optional)</label><input id="outing" placeholder="e.g. Lunch after service"></div>
+      <div class="field"><label for="nick">Friend’s nickname</label><input id="nick" maxlength="40" placeholder="e.g. Friend M"></div>
+      <div class="field"><label for="outing">Outing (optional)</label><input id="outing" maxlength="80" placeholder="e.g. Lunch after service"></div>
       <button class="btn" onclick="plant()">Plant seed</button>`;
   }
 
   if (undoStack.length) app.innerHTML += `<div class="toast"><span>${undoStack[undoStack.length - 1].label}</span><button onclick="undo()">Undo</button></div>`;
 }
 
-function avatarPicker() {
-  return `
-    <div class="field"><label>Pick an avatar</label>
-      <div class="pick">${AVATARS.map((a) => `<button class="${draft.avatar === a ? "on" : ""}" onclick="pickDraft('avatar','${a}')" aria-label="Avatar ${a}">${a}</button>`).join("")}</div></div>
-    <div class="field"><label>Pick a colour</label>
-      <div class="pick colors">${COLORS.map((c) => `<button class="${draft.color === c ? "on" : ""}" style="background:${c}" onclick="pickDraft('color','${c}')" aria-label="Colour ${c}"></button>`).join("")}</div></div>`;
-}
-function timeGrowing(s) {
-  const d = Math.floor((Date.now() - new Date(s.plantedAt)) / DAY);
-  if (d < 14) return plural(d, "day");
-  if (d < 60) return plural(Math.floor(d / 7), "week");
-  return plural(Math.round(d / 30.44), "month");
-}
-
 // ================= ACTIONS =================
 function buzz(big) { if (tg && tg.HapticFeedback) big ? tg.HapticFeedback.notificationOccurred("success") : tg.HapticFeedback.impactOccurred("light"); }
-const snapshot = (label) => ({ label: label, data: JSON.stringify(db) });
-function undo() {
-  const u = undoStack.pop(); if (!u) return;
-  db = JSON.parse(u.data); save();
-  if (screen === "seed" && !seedById(currentId)) { go("seeds"); return; }
-  celebrate = ""; justWatered = false; buzz(false); render();
-}
-
-function addPrayer(s) {
-  const before = earned();
-  s.waters++; db.prayers.count++;
-  if (!db.prayers.days.includes(todayKey())) db.prayers.days.push(todayKey());
-  if (!db.prayers.seeds.includes(s.id)) db.prayers.seeds.push(s.id);
+function newBadgeText(before) {
   return BADGES.filter((b) => earned().includes(b.name) && !before.includes(b.name)).map((b) => "🏅 New badge: " + b.icon + " " + b.name + "!").join("<br>");
 }
+// Undo: each action remembers how to reverse itself
+function undo() {
+  const u = undoStack.pop(); if (!u) return;
+  run(async () => { celebrate = ""; justWatered = false; await u.reverse(); buzz(false); });
+}
+
 function water() {
-  const s = seedById(currentId), snap = snapshot("Prayer logged for " + esc(s.nick));
-  celebrate = addPrayer(s); justWatered = true; undoStack.push(snap);
-  save(); buzz(!!celebrate); render();
+  const s = seedById(currentId), before = earned();
+  run(async () => {
+    const r = await api("water", { seed_id: s.id });
+    undoStack.push({ label: "Prayer logged for " + esc(s.nick), reverse: () => api("unwater", { id: r.prayer_id }) });
+    justWatered = true;
+  }).then(() => { celebrate = newBadgeText(before); buzz(!!celebrate); render(); });
 }
 function postNote() {
-  const s = seedById(currentId), text = (draft.note || "").trim();
+  const s = seedById(currentId), text = (draft.note || "").trim(), before = earned();
   if (!text) return alert("Write a short prayer first.");
-  const snap = snapshot("Prayer posted for " + esc(s.nick));
-  s.notes = s.notes || [];
-  s.notes.push({ by: "me", text: text.slice(0, 280), at: new Date().toISOString() });
-  draft.note = "";
-  celebrate = addPrayer(s); justWatered = true; undoStack.push(snap);
-  save(); buzz(true); render();
+  run(async () => {
+    const r = await api("note", { seed_id: s.id, text: text });
+    undoStack.push({ label: "Prayer posted for " + esc(s.nick), reverse: () => api("deleteNote", { id: r.note_id, prayer_id: r.prayer_id }) });
+    draft.note = ""; justWatered = true;
+  }).then(() => { celebrate = newBadgeText(before); buzz(true); render(); });
 }
 function toggleMilestone(key) {
-  const s = seedById(currentId), m = MILESTONES.find((x) => x.key === key);
-  const snap = snapshot((s.milestones[key] ? "Removed: " : "Logged: ") + m.label);
-  if (s.milestones[key]) { delete s.milestones[key]; celebrate = ""; }
-  else {
-    const kindBefore = kindOf(s);
-    s.milestones[key] = new Date().toISOString();
-    const kindNow = kindOf(s), fr = key === "saved" ? fruitOf(s) : null;
+  const s = seedById(currentId), m = MILESTONES.find((x) => x.key === key), had = s.milestones[key] || null, kindBefore = kindOf(s);
+  run(async () => {
+    await api("setMilestone", { seed_id: s.id, key: key, date: had ? null : new Date().toISOString() });
+    undoStack.push({ label: (had ? "Removed: " : "Logged: ") + m.label, reverse: () => api("setMilestone", { seed_id: s.id, key: key, date: had }) });
+    justWatered = false;
+  }).then(() => {
+    const now = seedById(s.id); if (!now || had) { celebrate = ""; render(); return; }
+    const kindNow = kindOf(now), fr = key === "saved" ? fruitOf(now) : null;
     celebrate = fr
-      ? "🟤 New ring, and " + esc(s.nick) + " has borne fruit! " + fr.fruit + " " + an(fr.name).replace(/^a/, "A") + " after " + monthText(fr.months) + "."
-      : "🟤 New ring! " + m.icon + " " + esc(s.nick) + ": " + m.label + ". Praise God!" + (kindNow !== kindBefore ? "<br>It’s growing into " + an(kindNow.name) + "!" : "");
-  }
-  justWatered = false; undoStack.push(snap);
-  save(); buzz(!!celebrate); render();
+      ? "🟤 New ring, and " + esc(now.nick) + " has borne fruit! " + fr.fruit + " " + an(fr.name).replace(/^a/, "A") + " after " + monthText(fr.months) + "."
+      : "🟤 New ring! " + m.icon + " " + esc(now.nick) + ": " + m.label + ". Praise God!" + (kindNow && kindNow !== kindBefore ? "<br>It’s growing into " + an(kindNow.name) + "!" : "");
+    buzz(true); render();
+  });
 }
 function plant() {
-  const nick = document.getElementById("nick").value.trim();
+  const nick = document.getElementById("nick").value.trim(), outing = document.getElementById("outing").value.trim();
   if (!nick) return alert("Please enter a nickname first.");
-  const outing = document.getElementById("outing").value.trim() || "No outing logged yet";
-  const snap = snapshot("Planted " + esc(nick));
-  db.seeds.unshift({ id: Date.now(), nick: nick, by: "me", outing: outing, waters: 0, plantedAt: new Date().toISOString(), milestones: {}, notes: [] });
-  save(); go("seeds"); undoStack.push(snap); render();
+  run(async () => {
+    const r = await api("plant", { nick: nick, outing: outing });
+    screen = "seeds";
+    undoStack = [{ label: "Planted " + esc(nick), reverse: () => api("deleteSeed", { id: r.id }) }];
+    buzz(true);
+  });
 }
 function planWith(seedId) { go("newevent"); draft.friend = String(seedId); draft.title = "Outing with " + seedById(seedId).nick; render(); }
 
-function rsvp(yes) {
-  const e = db.events.find((x) => x.id === currentId);
-  e.going = e.going.filter((id) => id !== "me");
-  if (yes) e.going.push("me");
-  if (!e.invited.includes("me")) e.invited.push("me");
-  save(); buzz(yes); render();
-}
+function rsvp(yes) { const e = eventById(currentId); run(async () => { await api("rsvp", { event_id: e.id, going: yes }); buzz(yes); }); }
 function saveEvent() {
   if (!draft.title.trim()) return alert("Give your outing a name first.");
   if (!draft.date) return alert("Pick a date.");
-  const e = { id: Date.now(), type: draft.type, title: draft.title.trim(), date: draft.date, time: draft.time, place: draft.place.trim(),
-              by: "me", invited: draft.invited.includes("me") ? draft.invited : ["me"].concat(draft.invited), going: ["me"], friend: draft.friend ? Number(draft.friend) : null };
-  db.events.push(e); save();
-  go("event", e.id);
-  celebrate = ""; buzz(true);
-  if (confirm("Outing created! Send the invite on Telegram now?")) shareEvent(e.id);
+  run(async () => {
+    const r = await api("createEvent", { type: draft.type, title: draft.title, date: draft.date, time: draft.time, place: draft.place,
+                                         invited: draft.invited.map(Number), friend_seed: draft.friend ? Number(draft.friend) : null });
+    screen = "event"; currentId = r.id; buzz(true);
+  }).then(() => { if (screen === "event" && confirm("Outing created! Send the invite on Telegram now?")) shareEvent(currentId); });
+}
+function cancelEvent(id) {
+  if (!confirm("Cancel this event for everyone?")) return;
+  run(async () => { await api("deleteEvent", { id: id }); screen = "events"; currentId = null; });
+}
+function shareLink(text) {
+  const link = "https://t.me/share/url?url=" + encodeURIComponent(BOT_LINK) + "&text=" + encodeURIComponent(text);
+  if (tg && tg.openTelegramLink) tg.openTelegramLink(link); else window.open(link, "_blank");
 }
 function shareEvent(id) {
-  const e = db.events.find((x) => x.id === id);
-  const text = (e.type === "cg" ? "🙏 " : "🎉 ") + "You’re invited: " + e.title + "\n📅 " + fmtDate(e.date) + ", " + fmtTime(e.time) +
-               (e.place ? "\n📍 " + e.place : "") + "\nRSVP in our CG Hub 👇";
-  const link = "https://t.me/share/url?url=" + encodeURIComponent(BOT_LINK) + "&text=" + encodeURIComponent(text);
-  if (tg && tg.openTelegramLink && tg.initData) tg.openTelegramLink(link); else window.open(link, "_blank");
+  const e = eventById(id); if (!e) return;
+  shareLink((e.type === "cg" ? "🙏 " : "🎉 ") + "You’re invited: " + e.title + "\n📅 " + fmtDate(e.date) + ", " + fmtTime(e.time) +
+            (e.place ? "\n📍 " + e.place : "") + "\nRSVP in CG Hub 👇");
+}
+function inviteMembers() { shareLink("🌱 Join our CG on CG Hub! Open the link, tap the button at the bottom, and I’ll approve you."); }
+function decide(id, yes) {
+  const p = pending.find((x) => x.id === id);
+  if (!yes && !confirm("Decline " + p.name + "?")) return;
+  run(async () => { await api(yes ? "approve" : "decline", { telegram_id: Number(id) }); buzz(yes); });
 }
 function saveProfile() {
-  if (!draft.name.trim()) return alert("Please enter your name.");
-  db.profile = { name: draft.name.trim(), avatar: draft.avatar, color: draft.color };
-  save(); buzz(true); go("home");
-}
-function saveMember() {
-  if (!draft.name.trim()) return alert("Please enter a name.");
-  db.members.push({ id: "m" + Date.now(), name: draft.name.trim(), role: draft.role.trim(), avatar: draft.avatar, color: draft.color });
-  save(); buzz(true); go("cg");
+  if (!(draft.name || "").trim()) return alert("Please enter your name.");
+  run(async () => { await api("saveProfile", { name: draft.name, avatar: draft.avatar, color: draft.color }); screen = status === "pending" ? "home" : "home"; buzz(true); });
 }
 
+// ================= START =================
+let loadError = "";
+async function start() {
+  if (!tg || !tg.initData) { status = "outside"; render(); return; }
+  try { await refresh(); } catch (e) { status = "error"; loadError = e.message; }
+  render();
+}
+// Quietly pick up other members' changes when you come back to the app, and every minute
+function quietRefresh() {
+  const typing = document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if (busy || typing || status !== "approved" || ["newevent", "profile", "plant"].includes(screen)) return;
+  refresh().then(render).catch(() => {});
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) quietRefresh(); });
+setInterval(quietRefresh, 60000);
+
 document.getElementById("back").onclick = () => go(backTo[screen]);
-document.getElementById("me-btn").onclick = () => go("profile");
+document.getElementById("me-btn").onclick = () => { if (meRow) go("profile"); };
 document.querySelectorAll("nav button").forEach((b) => b.onclick = () => go(b.dataset.tab));
 if (tg) { tg.ready(); tg.expand(); }
-render();
+start();
 </script>
 </body>
 </html>

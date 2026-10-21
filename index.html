@@ -84,7 +84,7 @@
            padding: 10px 10px 10px 16px; display: flex; align-items: center; gap: 12px; font-size: 15px; animation: pop .3s ease; }
   .toast span { flex: 1; }
   .toast button { min-height: 44px; padding: 0 16px; border: none; border-radius: 10px; background: var(--gold); color: #1E2A22; font-size: 15px; font-weight: 800; cursor: pointer; }
-  nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 5; height: 72px; background: var(--card); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); }
+  nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 5; height: 72px; background: var(--card); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); }
   nav button { border: none; background: none; font-size: 12px; font-weight: 700; color: #5F6B63; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
   nav button span { font-size: 22px; }
   nav button.active { color: var(--green); }
@@ -114,6 +114,53 @@
   .prog { height: 5px; width: 100%; border-radius: 3px; background: #E2E6DE; overflow: hidden; margin-top: 3px; }
   .prog i { display: block; height: 100%; background: var(--gold); }
   .waterbtn:active { transform: scale(.97); }
+  .av { overflow: hidden; } .av svg { display: block; }
+  /* ---- avatar builder ---- */
+  .opts { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .opts button { border: 3px solid transparent; background: none; border-radius: 50%; padding: 0; cursor: pointer; flex-shrink: 0; }
+  .opts button.on { border-color: var(--green); }
+  .seg { display: flex; background: #EDEFE9; border-radius: 12px; padding: 4px; gap: 4px; }
+  .seg button { flex: 1; min-height: 44px; border: none; border-radius: 9px; background: none; font: inherit; font-weight: 800; color: var(--muted); cursor: pointer; }
+  .seg button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  /* ---- garden world ---- */
+  .world-wrap { overflow-x: auto; border-radius: 22px; -webkit-overflow-scrolling: touch; box-shadow: 0 6px 20px rgba(30,42,34,.18); }
+  .world { position: relative; height: 460px; overflow: hidden; min-width: 100%; }
+  .world.morning { background: linear-gradient(#FFD3A1, #BFE3F5 65%); }
+  .world.day     { background: linear-gradient(#6FC3EE, #D9F2FB 65%); }
+  .world.sunset  { background: linear-gradient(#5B4B8A, #F28F6B 50%, #F9D29D 75%); }
+  .world.night   { background: linear-gradient(#10173A, #2E3F72 75%); }
+  .w-label { position: absolute; top: 14px; left: 14px; z-index: 3; background: rgba(255,255,255,.88); border-radius: 12px; padding: 6px 12px; font-weight: 800; font-size: 13px; color: var(--ink); }
+  .w-sun { position: absolute; top: 22px; right: 26px; font-size: 54px; line-height: 1; filter: drop-shadow(0 0 18px rgba(255,214,110,.95)); animation: glow 4s ease-in-out infinite; }
+  @keyframes glow { 50% { transform: scale(1.08); } }
+  .cloud { position: absolute; left: 0; font-size: 48px; opacity: .92; animation: drift linear infinite; }
+  @keyframes drift { from { transform: translateX(-140px); } to { transform: translateX(var(--w)); } }
+  .star { position: absolute; width: 3px; height: 3px; background: #fff; border-radius: 50%; animation: twinkle 1.8s ease-in-out infinite alternate; }
+  @keyframes twinkle { from { opacity: .2; } to { opacity: 1; } }
+  .rainbow { position: absolute; top: 46px; left: 50%; transform: translateX(-50%); width: 560px; max-width: 95%; opacity: .7; }
+  .hills { position: absolute; left: 0; bottom: 0; width: 100%; height: 240px; }
+  .flower { position: absolute; font-size: 14px; line-height: 1; }
+  .wplant { position: absolute; bottom: 92px; transform: translateX(-50%); border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; font: inherit; padding: 0; z-index: 2; }
+  .wplant .sway { display: inline-block; transform-origin: bottom center; animation: sway 3.2s ease-in-out infinite; line-height: 1; position: relative; }
+  @keyframes sway { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+  .wplant .wf { position: absolute; font-size: 18px; }
+  .wplant .tag { font-size: 11px; font-weight: 800; color: var(--ink); background: rgba(255,255,255,.9); padding: 2px 8px; border-radius: 8px; margin-top: 3px; white-space: nowrap; }
+  .wplant .drops { position: absolute; top: -22px; font-size: 12px; font-weight: 800; background: #fff; color: var(--blue); border-radius: 10px; padding: 1px 7px; white-space: nowrap; animation: bounce 1.6s ease infinite; }
+  .walker { position: absolute; bottom: 10px; transform: translateX(-50%); z-index: 3; display: flex; flex-direction: column; align-items: center; }
+  .walker.stroll { animation: stroll 10s ease-in-out infinite alternate; }
+  @keyframes stroll { from { transform: translateX(-50%); } to { transform: translateX(calc(-50% + 46px)); } }
+  .walker .bob { animation: bob 1.3s ease-in-out infinite; position: relative; }
+  @keyframes bob { 50% { transform: translateY(-5px); } }
+  .walker small { font-size: 11px; font-weight: 800; color: #fff; background: rgba(0,0,0,.4); border-radius: 8px; padding: 1px 7px; margin-top: 2px; white-space: nowrap; }
+  .walker .pray { position: absolute; top: -14px; right: -6px; font-size: 16px; animation: bounce 1.6s ease infinite; }
+  .butterfly { position: absolute; z-index: 2; font-size: 22px; animation: flutter 8s ease-in-out infinite alternate; }
+  @keyframes flutter { 0% { transform: translate(0,0) rotate(-8deg); } 25% { transform: translate(50px,-30px) rotate(8deg); } 50% { transform: translate(100px,10px) rotate(-6deg); }
+                       75% { transform: translate(60px,-40px) rotate(6deg); } 100% { transform: translate(150px,-6px) rotate(-4deg); } }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); }
+  .photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .ph { display: block; border: none; padding: 0; border-radius: 10px; overflow: hidden; aspect-ratio: 1; background: #E9ECE6; cursor: pointer; }
+  .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .viewer img { max-width: 100%; max-height: 60vh; border-radius: 14px; display: block; margin: 0 auto; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   body.busy main { opacity: .6; pointer-events: none; }
 </style></head>
 <body>
@@ -125,9 +172,10 @@
 <main id="app"><p class="sub" style="text-align:center;margin-top:40px">Loading our garden… 🌱</p></main>
 <nav id="nav">
   <button data-tab="home"><span>🏠</span>Home</button>
+  <button data-tab="world"><span>🌍</span>World</button>
+  <button data-tab="seeds"><span>🌱</span>Seeds</button>
   <button data-tab="events"><span>📅</span>Events</button>
   <button data-tab="cg"><span>👥</span>Our CG</button>
-  <button data-tab="seeds"><span>🌱</span>Seeds</button>
 </nav>
 
 <script>
@@ -186,7 +234,73 @@ const monthText = (n) => n < 1 ? "under a month" : plural(n, "month");
 const shortDate = (iso) => new Date(iso).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" });
 const fmtDate = (d) => new Date(d + "T00:00").toLocaleDateString("en-SG", { weekday: "short", day: "numeric", month: "short" });
 const fmtTime = (t) => { if (!t) return ""; const [h, m] = t.split(":").map(Number); return ((h % 12) || 12) + ":" + String(m).padStart(2, "0") + (h < 12 ? " AM" : " PM"); };
+// ---- Character avatars ----
+// A character is saved as "~" plus 6 digits: skin, hair, hair colour, eyes, mouth, extra
+const SKINS    = ["#FFDBC4", "#F6C9A0", "#E0AC69", "#C68642", "#8D5524", "#5C3A21"];
+const HAIRCOLS = ["#2B1B12", "#6B3E1E", "#C98B3B", "#E8C770", "#B5513A", "#7C5CBF"];
+const AV_PARTS = [
+  { key: "skin",    label: "Skin",        n: 6 },
+  { key: "hair",    label: "Hair",        n: 6 },
+  { key: "hairCol", label: "Hair colour", n: 6 },
+  { key: "eyes",    label: "Eyes",        n: 4 },
+  { key: "mouth",   label: "Smile",       n: 4 },
+  { key: "extra",   label: "Extra",       n: 6 }
+];
+function parseAv(a) {
+  if (!a || a[0] !== "~") return null;
+  const d = a.slice(1).split("").map(Number), c = {};
+  AV_PARTS.forEach((p, i) => { c[p.key] = Math.min(p.n - 1, d[i] || 0); });
+  return c;
+}
+const encAv = (c) => "~" + AV_PARTS.map((p) => c[p.key]).join("");
+const randomAv = () => { const c = {}; AV_PARTS.forEach((p) => { c[p.key] = Math.floor(Math.random() * p.n); }); return encAv(c); };
+function shade(hex, amt) {
+  const n = parseInt(hex.slice(1), 16), t = amt < 0 ? 0 : 255, f = Math.abs(amt);
+  const ch = (v) => Math.round((t - v) * f + v);
+  return "#" + [ch(n >> 16), ch((n >> 8) & 255), ch(n & 255)].map((v) => v.toString(16).padStart(2, "0")).join("");
+}
+function charSvg(c, col) {
+  const skin = SKINS[c.skin], hc = HAIRCOLS[c.hairCol], shirt = shade(col, -0.35), dark = shade(col, -0.55), ink = "#1E2A22";
+  const fringe = `<path d="M25 46 Q25 17 50 17 Q75 17 75 46 Q70 30 52 29 Q38 29 25 46Z" fill="${hc}"/>`;
+  const back = c.hair === 1 ? `<path d="M24 48 Q20 14 50 14 Q80 14 76 48 L80 82 Q66 78 64 62 L36 62 Q34 78 20 82Z" fill="${hc}"/>` : "";
+  const front = [
+    fringe, fringe,
+    [[30,32],[38,22],[50,18],[62,22],[70,32],[26,42],[74,42]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="${hc}"/>`).join(""),
+    fringe + `<circle cx="50" cy="12" r="9" fill="${hc}"/>`,
+    `<path d="M25 44 L28 24 L35 31 L39 15 L46 27 L52 11 L57 26 L64 15 L67 30 L73 23 L75 44 Q65 32 50 32 Q35 32 25 44Z" fill="${hc}"/>`,
+    ""
+  ][c.hair];
+  const line = (d, w) => `<path d="${d}" stroke="${ink}" stroke-width="${w || 2.6}" fill="none" stroke-linecap="round"/>`;
+  const eyes = [
+    `<circle cx="41" cy="46" r="3.3" fill="${ink}"/><circle cx="59" cy="46" r="3.3" fill="${ink}"/><circle cx="42" cy="45" r="1" fill="#fff"/><circle cx="60" cy="45" r="1" fill="#fff"/>`,
+    line("M37 47 Q41 42 45 47 M55 47 Q59 42 63 47"),
+    `<circle cx="41" cy="46" r="3.3" fill="${ink}"/>` + line("M55 47 Q59 43 63 47"),
+    `<circle cx="41" cy="46" r="7" fill="rgba(255,255,255,.4)" stroke="${ink}" stroke-width="2.2"/><circle cx="59" cy="46" r="7" fill="rgba(255,255,255,.4)" stroke="${ink}" stroke-width="2.2"/>` +
+      line("M48 46 L52 46", 2.2) + `<circle cx="41" cy="46" r="2.4" fill="${ink}"/><circle cx="59" cy="46" r="2.4" fill="${ink}"/>`
+  ][c.eyes];
+  const mouth = [
+    line("M43 56 Q50 62 57 56"),
+    `<path d="M41 55 Q50 67 59 55 Z" fill="${ink}"/><path d="M44 56 L56 56 L55 58.5 L45 58.5Z" fill="#fff"/>`,
+    `<ellipse cx="50" cy="58" rx="4" ry="4.6" fill="${ink}"/><ellipse cx="50" cy="60" rx="2.4" ry="1.6" fill="#F4A99B"/>`,
+    line("M43 56 Q46.5 60 50 56 Q53.5 60 57 56", 2.4)
+  ][c.mouth];
+  const extra = [
+    "",
+    `<path d="M25 38 Q26 15 50 15 Q74 15 75 38Z" fill="${shirt}"/><path d="M52 35 Q80 33 88 40 Q72 42 52 40Z" fill="${dark}"/><circle cx="50" cy="15" r="3" fill="${dark}"/>`,
+    [[29,31,"#F4A99B"],[38,22,"#F2C76B"],[50,18,"#C9B6E8"],[62,22,"#F4A99B"],[71,31,"#F2C76B"]].map(([x, y, f]) => `<circle cx="${x}" cy="${y}" r="5.5" fill="${f}"/><circle cx="${x}" cy="${y}" r="2" fill="#fff"/>`).join(""),
+    `<path d="M23 46 Q23 12 50 12 Q77 12 77 46" stroke="${ink}" stroke-width="4" fill="none"/><rect x="17" y="39" width="11" height="17" rx="5" fill="${shirt}"/><rect x="72" y="39" width="11" height="17" rx="5" fill="${shirt}"/>`,
+    `<path d="M24 38 Q24 11 50 11 Q76 11 76 38Z" fill="${shirt}"/><rect x="22" y="33" width="56" height="10" rx="5" fill="${dark}"/><circle cx="50" cy="9" r="6" fill="${dark}"/>`,
+    `<path d="M60 22 L71 15 L71 31Z M60 22 L49 15 L49 31Z" fill="#F4A99B"/><circle cx="60" cy="23" r="3.5" fill="#E07A6A"/>`
+  ][c.extra];
+  return `<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">${back}
+    <path d="M14 100 Q17 73 50 71 Q83 73 86 100Z" fill="${shirt}"/><rect x="44" y="62" width="12" height="12" rx="4" fill="${skin}"/>
+    <circle cx="26" cy="48" r="5" fill="${skin}"/><circle cx="74" cy="48" r="5" fill="${skin}"/><circle cx="50" cy="45" r="24" fill="${skin}"/>
+    <circle cx="35" cy="54" r="4" fill="#F4A99B" opacity=".55"/><circle cx="65" cy="54" r="4" fill="#F4A99B" opacity=".55"/>
+    ${eyes}${mouth}${front}${extra}</svg>`;
+}
 const avatar = (p, size) => { size = size || 40;
+  const c = parseAv(p.avatar);
+  if (c) return `<span class="av" style="width:${size}px;height:${size}px;background:${esc(shade(p.color || "#F2C76B", 0.45))}">${charSvg(c, p.color || "#F2C76B")}</span>`;
   return `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.55)}px;background:${esc(p.color)}">${esc(p.avatar)}</span>`; };
 
 // ================= TALKING TO THE DATABASE =================
@@ -201,7 +315,7 @@ async function api(action, params) {
 
 // The shared data, turned into a shape the screens can use
 let status = "loading", meRow = null, members = [], pending = [], seeds = [], events = [], myPrayers = { count: 0, days: [], seeds: [] };
-let allPrayers = [], allNotes = [], rawEvents = [];
+let allPrayers = [], allNotes = [], rawEvents = [], allEventPrayers = [], photos = [];
 async function refresh() {
   const d = await api("load");
   status = d.status; meRow = d.me;
@@ -217,14 +331,16 @@ async function refresh() {
   }));
   events = d.events.map((e) => ({
     id: e.id, type: e.type, title: e.title, date: e.date, time: e.time, place: e.place, by: String(e.created_by),
-    invited: (e.invited || []).map(String), friend: e.friend_seed,
+    invited: (e.invited || []).map(String), friend: e.friend_seed, inviteOnly: !!e.invite_only,
     going: d.rsvps.filter((r) => r.event_id === e.id).map((r) => String(r.member_id))
   }));
   allPrayers = d.prayers.map((p) => ({ seed: p.seed_id, by: String(p.by_member), at: p.created_at }));
   allNotes = d.notes.map((n) => ({ seed: n.seed_id, by: String(n.by_member), at: n.created_at }));
   rawEvents = d.events;
-  const mine = d.prayers.filter((p) => p.by_member === myId);
-  myPrayers = { count: mine.length, days: [...new Set(mine.map((p) => localDay(p.created_at)))], seeds: [...new Set(mine.map((p) => p.seed_id))] };
+  allEventPrayers = (d.eventPrayers || []).map((x) => ({ id: x.id, event: x.event_id, by: String(x.by_member), at: x.created_at }));
+  photos = (d.photos || []).map((x) => ({ id: x.id, event: x.event_id, by: String(x.by_member), caption: x.caption, at: x.created_at, url: x.url }));
+  const mine = d.prayers.filter((p) => p.by_member === myId), mineEv = (d.eventPrayers || []).filter((p) => p.by_member === myId);
+  myPrayers = { count: mine.length + mineEv.length, days: [...new Set(mine.concat(mineEv).map((p) => localDay(p.created_at)))], seeds: [...new Set(mine.map((p) => p.seed_id))] };
 }
 
 function me() { return meRow ? { id: String(meRow.telegram_id), name: meRow.name, avatar: meRow.avatar, color: meRow.color, role: meRow.role, leader: meRow.is_leader }
@@ -232,6 +348,9 @@ function me() { return meRow ? { id: String(meRow.telegram_id), name: meRow.name
 const person = (id) => members.find((m) => m.id === String(id)) || { name: "Someone", avatar: "🙂", color: "#E2E6DE" };
 const seedById = (id) => seeds.find((s) => s.id === Number(id));
 const eventById = (id) => events.find((e) => e.id === Number(id));
+// Invite-only outings: everyone can see and pray for them; only invited people RSVP
+const canRsvp = (e) => !e.inviteOnly || e.invited.includes(me().id);
+const canAddPhotos = (e) => e.date <= todayKey() && (!e.inviteOnly || e.invited.includes(me().id) || me().leader);
 
 // ================= SEED LOGIC =================
 function kindOf(s) {
@@ -268,7 +387,7 @@ function timeGrowing(s) {
 function weekStart() { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; }
 function weekStats() {
   const start = weekStart(), days = [0, 0, 0, 0, 0, 0, 0];
-  allPrayers.forEach((p) => { const t = new Date(p.at); if (t >= start) days[Math.min(6, Math.floor((t - start) / DAY))]++; });
+  allPrayers.concat(allEventPrayers).forEach((p) => { const t = new Date(p.at); if (t >= start) days[Math.min(6, Math.floor((t - start) / DAY))]++; });
   const total = days.reduce((a, b) => a + b, 0), goal = Math.max(14, members.length * 7);   // a prayer a day each
   return { days: days, total: total, goal: goal, pct: Math.min(100, Math.round(total / goal * 100)) };
 }
@@ -284,6 +403,11 @@ function feedItems() {
     items.push({ at: s.plantedAt, who: person(s.by), text: "<b>" + esc(person(s.by).name) + "</b> planted a seed: <b>" + esc(s.nick) + "</b> 🌱" });
     MILESTONES.forEach((m) => { if (s.milestones[m.key]) items.push({ at: s.milestones[m.key], icon: m.icon, big: true, text: "<b>" + esc(s.nick) + "</b>: " + m.label + "! 🎉" }); });
   });
+  const evTitle = (id) => (eventById(id) || { title: "an outing" }).title, eg = {}, pg = {};
+  allEventPrayers.forEach((p) => { const k = p.by + "|" + p.event + "|" + localDay(p.at); if (!eg[k]) eg[k] = { at: p.at, by: p.by, ev: p.event, n: 0 }; eg[k].n++; if (p.at > eg[k].at) eg[k].at = p.at; });
+  Object.values(eg).forEach((g) => items.push({ at: g.at, who: person(g.by), text: "<b>" + esc(person(g.by).name) + "</b> prayed for <b>" + esc(evTitle(g.ev)) + "</b> 🙏" + (g.n > 1 ? " " + g.n + "×" : "") }));
+  photos.forEach((x) => { const k = x.by + "|" + x.event + "|" + localDay(x.at); if (!pg[k]) pg[k] = { at: x.at, by: x.by, ev: x.event, n: 0 }; pg[k].n++; });
+  Object.values(pg).forEach((g) => items.push({ at: g.at, who: person(g.by), text: "<b>" + esc(person(g.by).name) + "</b> shared " + plural(g.n, "photo") + " from <b>" + esc(evTitle(g.ev)) + "</b> 📸" }));
   rawEvents.forEach((e) => { if (e.created_at) items.push({ at: e.created_at, who: person(e.created_by), text: "<b>" + esc(person(e.created_by).name) + "</b> planned <b>" + esc(e.title) + "</b> 📅" }); });
   return items.sort((a, b) => (a.at < b.at ? 1 : -1));
 }
@@ -309,37 +433,44 @@ function confetti(bits) {
     document.body.appendChild(c); setTimeout(() => c.remove(), 3800);
   }
 }
-function splash(x, y) {
+function splash(x, y, icon) {
   for (let i = 0; i < 8; i++) {
     const c = document.createElement("span"), a = (Math.PI * 2 * i) / 8;
-    c.className = "splash"; c.textContent = "💧"; c.style.left = (x - 11) + "px"; c.style.top = (y - 11) + "px";
+    c.className = "splash"; c.textContent = icon || "💧"; c.style.left = (x - 11) + "px"; c.style.top = (y - 11) + "px";
     c.style.setProperty("--dx", Math.cos(a) * 70 + "px"); c.style.setProperty("--dy", Math.sin(a) * 70 + "px");
     document.body.appendChild(c); setTimeout(() => c.remove(), 900);
   }
 }
 let popup = null;
-function celebrateBig(emoji, title, sub, bits) {
-  const v = pick(VERSES);
+function celebrateBig(emoji, title, sub, bits, verse) {
+  const v = verse || pick(VERSES);
   popup = { emoji: emoji, title: title, sub: sub || "", verse: v };
   confetti(bits); buzz(true); render();
 }
 function closePopup() { popup = null; render(); }
 
 // ================= APP STATE =================
+let uploading = null, viewer = null;
 let screen = "home", currentId = null, justWatered = false, celebrate = "", undoStack = [], draft = {}, busy = false;
-const backTo = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", profile: "home" };
+const backTo = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", profile: "world" };
 const titles = { home: "CG Hub", events: "Events & Outings", event: "Event", newevent: "Plan an outing", cg: "Our CG",
-                 seeds: "Seeds", seed: "Seed", plant: "Plant a seed", profile: "My profile" };
+                 seeds: "Seeds", seed: "Seed", plant: "Plant a seed", profile: "My avatar", world: "Our Garden World" };
 
 function go(to, id) {
   screen = to; currentId = id == null ? null : id; justWatered = false; celebrate = ""; undoStack = [];
-  if (to === "profile") { const m = me(); draft = { name: m.name, avatar: m.avatar, color: m.color }; }
-  if (to === "newevent") draft = { type: "outing", title: "", date: dayFromNow(7), time: "19:00", place: "", invited: [me().id], friend: "" };
+  if (to === "profile") {
+    const m = me();
+    // First time? Start with a random character. Otherwise keep what they have.
+    draft = { name: m.name, avatar: m.avatar === "🌻" ? randomAv() : m.avatar, color: m.color };
+  }
+  if (to === "event") draft = {};
+  if (to === "newevent") draft = { inviteOnly: false, type: "outing", title: "", date: dayFromNow(7), time: "19:00", place: "", invited: [me().id], friend: "" };
   if (to === "seed" || to === "plant") draft = {};
   render(); window.scrollTo(0, 0);
 }
 function setDraft(k, v) { draft[k] = v; }
 function pickDraft(k, v) { draft[k] = v; render(); }
+function setAv(field, v) { const c = parseAv(draft.avatar) || parseAv(randomAv()); c[field] = v; draft.avatar = encAv(c); buzz(false); render(); }
 function toggleInvite(id) { draft.invited = draft.invited.includes(id) ? draft.invited.filter((x) => x !== id) : draft.invited.concat(id); render(); }
 
 // Runs an action, reloads the shared data, and shows any error nicely
@@ -383,13 +514,13 @@ function render() {
 
   document.getElementById("title").textContent = titles[screen];
   document.getElementById("back").hidden = !backTo[screen] || (status === "pending");
-  const tab = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", profile: "home" }[screen] || screen;
+  const tab = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", profile: "world" }[screen] || screen;
   document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
   const upcoming = events.filter((e) => e.date >= todayKey()).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 
   if (screen === "home") {
     const total = seeds.reduce((x, y) => x + y.waters, 0), fruits = seeds.filter((x) => x.milestones.saved).length;
-    const e = upcoming[0], st = streak(), got = earned(), wk = weekStats(), prayedToday = myPrayers.days.includes(todayKey());
+    const e = upcoming.find(canRsvp), st = streak(), got = earned(), wk = weekStats(), prayedToday = myPrayers.days.includes(todayKey());
     const news = newsSinceLastVisit(), feed = feedItems().slice(0, 8);
     // Today's seed: the one that's had the fewest prayers this week (changes each day when tied)
     const thisWeek = (id) => allPrayers.filter((p) => p.seed === id && new Date(p.at) >= weekStart()).length;
@@ -406,10 +537,18 @@ function render() {
           <p style="font-size:14px;font-weight:700">${streakMsg}</p>
         </div>
       </div>
-      ${news.length ? `<div class="card" style="background:var(--gold-soft);border-color:var(--gold)"><p class="label">🎉 Good news while you were away</p>
-        ${news.slice(0, 4).map((n) => `<p style="margin:0;font-size:16px">${n}</p>`).join("")}<p class="sub" style="font-size:13px">Praise God! Keep watering. 🌱</p></div>` : ""}
+      ${e ? (() => { const going = e.going.includes(m.id); return `<div class="card" style="${going ? "" : "border:2px solid var(--green);"}">
+        <p class="label">📅 Next up${going ? "" : " · are you coming?"}</p>
+        <div class="item"><div class="tile"><small>${fmtDate(e.date).split(" ")[2].toUpperCase()}</small><span>${fmtDate(e.date).split(" ")[1]}</span></div>
+          <div style="flex:1"><p class="big" style="font-size:17px">${esc(e.title)}</p><p class="sub" style="font-size:14px">${fmtDate(e.date)} · ${fmtTime(e.time)}${e.place ? " · " + esc(e.place) : ""}</p></div></div>
+        <div class="row" style="align-items:center"><div class="stack">${e.going.slice(0, 5).map((id) => avatar(person(id), 32)).join("")}</div>
+          <span class="sub" style="font-size:14px">${e.going.length ? e.going.length + " going" + (going ? ", including you!" : "") : "Be the first to say yes!"}</span></div>
+        ${going
+          ? `<div class="row" style="align-items:center"><span class="chip" style="font-size:15px;padding:10px 14px">✓ You’re going!</span><button class="btn outline" style="flex:1" onclick="go('event', ${e.id})">See details</button></div>`
+          : `<div class="row"><button class="btn" style="flex:2;min-height:56px;font-size:17px" onclick="rsvpHome(${e.id})">🙋 I’m coming!</button><button class="btn grey" style="flex:1" onclick="go('event', ${e.id})">Details</button></div>`}
+      </div>`; })() : ""}
       ${pending.length ? `<button class="card item" style="background:var(--gold-soft);border-color:var(--gold)" onclick="go('cg')">
-        <span style="font-size:28px">🙋</span><div><p class="big" style="font-size:16px">${plural(pending.length, "person")} waiting to join</p><p class="sub">Tap to approve</p></div></button>` : ""}
+        <span style="font-size:28px">🙋</span><div><p class="big" style="font-size:16px">${pending.length === 1 ? "1 person" : pending.length + " people"} waiting to join</p><p class="sub">Tap to approve</p></div></button>` : ""}
       ${todays ? `<div class="card today-card"><p class="label">💧 Today’s seed to water</p>
         <div class="item"><div class="badge" style="background:#fff">${fruitOf(todays) ? fruitOf(todays).fruit : stage(todays).icon}</div>
           <div style="flex:1"><p class="big">${esc(todays.nick)}</p><p class="sub" style="font-size:14px">${thisWeek(todays.id) ? plural(thisWeek(todays.id), "prayer") + " this week" : "No prayers yet this week"}</p></div></div>
@@ -429,16 +568,10 @@ function render() {
           <div class="stat" style="background:var(--blue-soft)"><b style="color:var(--blue)">${total}</b>times watered</div>
           <div class="stat" style="background:var(--gold-soft)"><b style="color:#7A4B00">${fruits}</b>bore fruit</div>
         </div>
-        ${seeds.length ? "" : `<button class="btn outline" onclick="go('plant')">Plant a seed 🌱</button>`}</div>
+        <button class="btn outline" onclick="go('${seeds.length ? "world" : "plant"}')">${seeds.length ? "🌍 Visit our garden world" : "Plant a seed 🌱"}</button></div>
       ${feed.length ? `<div class="card"><p class="label">Garden news</p><div class="feed">
         ${feed.map((f) => `<div class="f">${f.who ? avatar(f.who, 32) : `<span class="av" style="width:32px;height:32px;font-size:18px;background:var(--gold-soft)">${f.icon}</span>`}
           <p style="${f.big ? "font-weight:700" : ""}">${f.text}</p><small>${ago(f.at)}</small></div>`).join("")}</div></div>` : ""}
-      ${e ? `<div class="card"><p class="label">Next up</p>
-        <div class="item"><div class="tile"><small>${fmtDate(e.date).split(" ")[2].toUpperCase()}</small><span>${fmtDate(e.date).split(" ")[1]}</span></div>
-          <div style="flex:1"><p class="big" style="font-size:16px">${esc(e.title)}</p><p class="sub">${fmtDate(e.date)} · ${fmtTime(e.time)}</p></div></div>
-        <div class="row" style="align-items:center"><div class="stack">${e.going.slice(0, 5).map((id) => avatar(person(id), 32)).join("")}</div>
-          <span class="sub" style="font-size:14px">${e.going.length} going</span></div>
-        <button class="btn" onclick="go('event', ${e.id})">View & RSVP</button></div>` : ""}
       <div class="card"><p class="label">My prayer badges · ${got.length} of ${BADGES.length}</p>
         <div class="badges">${BADGES.map((x) => { const has = got.includes(x.name), h = Math.min(x.goal, x.have(myPrayers)); return `
           <div class="bdg ${has ? "on" : ""}" style="${!has && h > 0 ? "opacity:.75" : ""}"><span>${x.icon}</span><b>${x.name}</b>
@@ -447,44 +580,75 @@ function render() {
   }
 
   if (screen === "events") {
+    const past = events.filter((x) => x.date < todayKey()).sort((a, b) => b.date.localeCompare(a.date));
     app.innerHTML = `<button class="btn" onclick="go('newevent')">+ Plan an outing</button>` +
-      (upcoming.length ? upcoming.map((e) => `
-        <button class="card item" onclick="go('event', ${e.id})">
-          <div class="tile"><small>${fmtDate(e.date).split(" ")[2].toUpperCase()}</small><span>${fmtDate(e.date).split(" ")[1]}</span></div>
+      (upcoming.length ? upcoming.map((x) => `
+        <button class="card item" onclick="go('event', ${x.id})">
+          <div class="tile"><small>${fmtDate(x.date).split(" ")[2].toUpperCase()}</small><span>${fmtDate(x.date).split(" ")[1]}</span></div>
           <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-            <span class="chip" style="align-self:flex-start">${e.type === "cg" ? "🙏 CG" : "🎉 Outing"}</span>
-            <p class="big" style="font-size:16px">${esc(e.title)}</p><p class="sub">${fmtDate(e.date)} · ${fmtTime(e.time)}</p>
-            <div class="row" style="align-items:center"><div class="stack">${e.going.slice(0, 4).map((id) => avatar(person(id), 28)).join("")}</div>
-              <span class="sub" style="font-size:13px">${e.going.length} going</span></div>
+            <div class="chips"><span class="chip">${x.type === "cg" ? "🙏 CG" : "🎉 Outing"}</span>${x.inviteOnly ? `<span class="chip" style="background:#EDEFE9;color:var(--muted)">🔒 Invite only</span>` : ""}
+              ${x.going.includes(m.id) ? `<span class="chip" style="background:var(--gold-soft);color:#7A4B00">✓ Going</span>` : ""}</div>
+            <p class="big" style="font-size:16px">${esc(x.title)}</p><p class="sub">${fmtDate(x.date)} · ${fmtTime(x.time)}</p>
+            <div class="row" style="align-items:center"><div class="stack">${x.going.slice(0, 4).map((id) => avatar(person(id), 28)).join("")}</div>
+              <span class="sub" style="font-size:13px">${x.going.length} going · 🙏 ${allEventPrayers.filter((p) => p.event === x.id).length}</span></div>
           </div>
-        </button>`).join("") : `<p class="sub">No upcoming events yet. Plan one!</p>`);
+        </button>`).join("") : `<p class="sub">No upcoming events yet. Plan one!</p>`) +
+      (past.length ? `<p class="label" style="margin-top:10px">📸 Outing memories</p>` + past.map((x) => { const pics = photos.filter((ph) => ph.event === x.id); return `
+        <button class="card" style="text-align:left;font:inherit;color:inherit;cursor:pointer" onclick="go('event', ${x.id})">
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div><p class="big" style="font-size:16px">${esc(x.title)}</p><p class="sub" style="font-size:13px">${fmtDate(x.date)} · ${pics.length ? plural(pics.length, "photo") : "Add the first photo"}</p></div>
+            <span style="font-size:24px">${pics.length ? "📸" : "➕"}</span></div>
+          ${pics.length ? `<div class="photos">${pics.slice(0, 3).map((ph) => `<span class="ph"><img src="${esc(ph.url)}" alt="${esc(ph.caption || "Outing photo")}" loading="lazy"></span>`).join("")}</div>` : ""}
+        </button>`; }).join("") : "");
   }
 
   if (screen === "event") {
     const e = eventById(currentId);
     if (!e) { app.innerHTML = `<p class="sub">This event isn’t available anymore.</p>`; return; }
     const mine = e.going.includes(m.id), host = person(e.by), fr = e.friend ? seedById(e.friend) : null;
-    const canCancel = e.by === m.id || m.leader;
+    const past = e.date < todayKey(), happened = e.date <= todayKey(), can = canRsvp(e);
+    const canCancel = (e.by === m.id || m.leader) && !past, canInvite = !past && (!e.inviteOnly || e.by === m.id || e.invited.includes(m.id));
+    const prs = allEventPrayers.filter((x) => x.event === e.id), prayedBy = [...new Set(prs.map((x) => x.by))];
+    const pics = photos.filter((x) => x.event === e.id);
     app.innerHTML = `
       <div class="card">
-        <span class="chip" style="align-self:flex-start">${e.type === "cg" ? "🙏 CG event" : "🎉 Outing"}</span>
+        <div class="chips"><span class="chip">${e.type === "cg" ? "🙏 CG event" : "🎉 Outing"}</span>
+          ${e.inviteOnly ? `<span class="chip" style="background:#EDEFE9;color:var(--muted)">🔒 Invite only</span>` : ""}
+          ${past ? `<span class="chip" style="background:var(--gold-soft);color:#7A4B00">✅ Happened</span>` : ""}</div>
         <p class="big" style="font-size:22px">${esc(e.title)}</p>
         <p class="sub">📅 ${fmtDate(e.date)} · ${fmtTime(e.time)}</p>
         <p class="sub">📍 ${esc(e.place || "Place to be confirmed")}</p>
         <div class="row" style="align-items:center">${avatar(host, 28)}<span class="sub" style="font-size:14px">Planned by ${esc(host.name)}</span></div>
         ${fr ? `<p class="sub">🌱 Bringing a friend: <b>${esc(fr.nick)}</b></p>` : ""}
       </div>
-      <p class="big" style="font-size:16px">Are you coming?</p>
-      <div class="row">
-        <button class="btn ${mine ? "" : "outline"}" onclick="rsvp(true)">I’m coming</button>
-        <button class="btn grey" onclick="rsvp(false)">${mine ? "Can’t make it" : "Not this time"}</button>
-      </div>
-      <div class="card"><p class="label">Going · ${e.going.length}</p>
-        <div class="pick">${e.going.length ? e.going.map((id) => avatar(person(id), 40)).join("") : `<span class="sub">Be the first!</span>`}</div>
+      ${celebrate ? `<div class="levelup">${celebrate}</div>` : ""}
+      ${past ? "" : can ? `
+        <p class="big" style="font-size:16px">Are you coming?</p>
+        <div class="row">
+          <button class="btn ${mine ? "" : "outline"}" onclick="rsvp(true)">I’m coming</button>
+          <button class="btn grey" onclick="rsvp(false)">${mine ? "Can’t make it" : "Not this time"}</button>
+        </div>` : `
+        <div class="card" style="background:#F1F2EE"><p class="big" style="font-size:16px">🔒 Invite-only outing</p>
+          <p class="sub">This one’s for the invited group, so there’s no need to RSVP. You can still pray for it! 🙏</p></div>`}
+      <div class="card"><p class="label">🙏 Pray for this outing</p>
+        <p class="sub">${prs.length ? plural(prs.length, "prayer") + " so far." : "Be the first to pray for it."}${fr ? " Pray especially for " + esc(fr.nick) + "!" : ""}</p>
+        ${prayedBy.length ? `<div class="row" style="align-items:center"><div class="stack">${prayedBy.slice(0, 6).map((id) => avatar(person(id), 30)).join("")}</div><span class="sub" style="font-size:13px">${prayedBy.length === 1 ? "1 person" : prayedBy.length + " people"} prayed</span></div>` : ""}
+        <button class="btn blue waterbtn" style="min-height:56px" onclick="prayForEvent(${e.id}, event)">🙏 I prayed for this outing</button></div>
+      ${happened ? `<div class="card"><p class="label">📸 Memories · ${pics.length}</p>
+        ${pics.length ? `<div class="photos">${pics.map((x) => `<button class="ph" onclick="viewPhoto(${x.id})" aria-label="Open photo"><img src="${esc(x.url)}" alt="${esc(x.caption || "Outing photo")}" loading="lazy"></button>`).join("")}</div>` : `<p class="sub">No photos yet. Share the first one!</p>`}
+        ${canAddPhotos(e) ? (uploading ? `<p class="big" style="font-size:16px;text-align:center">Uploading ${Math.min(uploading.done + 1, uploading.total)} of ${uploading.total}… 📸</p>` : `
+          <div class="field"><label for="cap" style="font-size:14px">Caption (optional)</label>
+            <input id="cap" maxlength="140" value="${esc(draft.caption || "")}" oninput="setDraft('caption', this.value)" placeholder="e.g. What a night! 🎳"></div>
+          <label class="btn" style="display:flex;align-items:center;justify-content:center;cursor:pointer">📸 Add photos
+            <input type="file" accept="image/*" multiple style="display:none" onchange="uploadPhotos(this)"></label>
+          <p class="sub" style="font-size:12px">Only share photos that everyone in them is happy to have shared.</p>`) : ""}
+      </div>` : ""}
+      <div class="card"><p class="label">${past ? "Went" : "Going"} · ${e.going.length}</p>
+        <div class="pick">${e.going.length ? e.going.map((id) => avatar(person(id), 40)).join("") : `<span class="sub">${past ? "No one RSVP’d" : "Be the first!"}</span>`}</div>
         <p class="label">Invited · ${e.invited.length}</p>
         <div class="pick">${e.invited.map((id) => avatar(person(id), 34)).join("")}</div></div>
-      <button class="btn blue" onclick="shareEvent(${e.id})">📨 Invite via Telegram</button>
-      <p class="sub" style="font-size:13px;text-align:center">Sends the event details to any chat you pick, with a link to CG Hub.</p>
+      ${canInvite ? `<button class="btn blue" onclick="shareEvent(${e.id})">📨 Invite via Telegram</button>
+      <p class="sub" style="font-size:13px;text-align:center">Sends the event details to any chat you pick, with a link to CG Hub.</p>` : ""}
       ${canCancel ? `<button class="btn dashed" onclick="cancelEvent(${e.id})">Cancel this event</button>` : ""}`;
   }
 
@@ -499,6 +663,10 @@ function render() {
       <div class="field"><label for="pl">Where?</label><input id="pl" value="${esc(draft.place)}" oninput="setDraft('place', this.value)" placeholder="e.g. Bowling alley"></div>
       <div class="field"><label>Invite members</label>
         <div class="pick people">${members.map((p) => `<button class="${draft.invited.includes(p.id) ? "on" : ""}" onclick="toggleInvite('${p.id}')">${avatar(p, 32)}${esc(p.id === m.id ? "Me" : p.name)}</button>`).join("")}</div></div>
+      <div class="field"><label>Who can join?</label>
+        <div class="seg"><button class="${draft.inviteOnly ? "" : "on"}" onclick="pickDraft('inviteOnly', false)">🌍 Whole CG</button>
+          <button class="${draft.inviteOnly ? "on" : ""}" onclick="pickDraft('inviteOnly', true)">🔒 Invite only</button></div>
+        <p class="sub" style="font-size:13px">${draft.inviteOnly ? "Everyone can see it and pray for it, but only the people you invite can RSVP." : "Anyone in the CG can RSVP."}</p></div>
       <div class="field"><label for="fr">Bringing a friend? (optional)</label>
         <select id="fr" onchange="setDraft('friend', this.value)"><option value="">No one this time</option>
         ${seeds.map((s) => `<option value="${s.id}" ${String(draft.friend) === String(s.id) ? "selected" : ""}>🌱 ${esc(s.nick)}</option>`).join("")}</select></div>
@@ -524,14 +692,67 @@ function render() {
   }
 
   if (screen === "profile") {
+    const c = parseAv(draft.avatar);
+    const preview = (field, v) => { const t = Object.assign({}, c); t[field] = v; return avatar({ avatar: encAv(t), color: draft.color }, 56); };
     app.innerHTML = `
-      <div style="display:flex;justify-content:center">${avatar(draft, 110)}</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+        <div class="bob" style="animation:bob 1.6s ease-in-out infinite">${avatar(draft, 140)}</div>
+        <button class="btn outline" style="width:auto" onclick="pickDraft('avatar', randomAv())">🎲 Surprise me</button>
+      </div>
       <div class="field"><label for="pn">Your name</label><input id="pn" value="${esc(draft.name)}" oninput="setDraft('name', this.value)" maxlength="40"></div>
-      <div class="field"><label>Pick an avatar</label>
-        <div class="pick">${AVATARS.map((a) => `<button class="${draft.avatar === a ? "on" : ""}" onclick="pickDraft('avatar','${a}')" aria-label="Avatar ${a}">${a}</button>`).join("")}</div></div>
-      <div class="field"><label>Pick a colour</label>
-        <div class="pick colors">${COLORS.map((c) => `<button class="${draft.color === c ? "on" : ""}" style="background:${c}" onclick="pickDraft('color','${c}')" aria-label="Colour ${c}"></button>`).join("")}</div></div>
-      <button class="btn" onclick="saveProfile()">Save my profile</button>`;
+      <div class="seg"><button class="${c ? "on" : ""}" onclick="pickDraft('avatar', parseAv(draft.avatar) ? draft.avatar : randomAv())">🧑 Character</button>
+        <button class="${c ? "" : "on"}" onclick="pickDraft('avatar', parseAv(draft.avatar) ? AVATARS[0] : draft.avatar)">😀 Emoji</button></div>
+      ${c ? AV_PARTS.map((p) => `
+        <div class="field"><label>${p.label}</label>
+          <div class="opts">${Array.from({ length: p.n }, (_, v) => `<button class="${c[p.key] === v ? "on" : ""}" onclick="setAv('${p.key}', ${v})" aria-label="${p.label} ${v + 1}">${preview(p.key, v)}</button>`).join("")}</div></div>`).join("")
+      : `<div class="field"><label>Pick an emoji</label>
+          <div class="pick">${AVATARS.map((x) => `<button class="${draft.avatar === x ? "on" : ""}" onclick="pickDraft('avatar','${x}')" aria-label="Avatar ${x}">${x}</button>`).join("")}</div></div>`}
+      <div class="field"><label>${c ? "Outfit colour" : "Background colour"}</label>
+        <div class="pick colors">${COLORS.map((x) => `<button class="${draft.color === x ? "on" : ""}" style="background:${x}" onclick="pickDraft('color','${x}')" aria-label="Colour ${x}"></button>`).join("")}</div></div>
+      <button class="btn" style="min-height:56px" onclick="saveProfile()">Save my avatar ✨</button>`;
+  }
+
+  if (screen === "world") {
+    const h = new Date().getHours(), phase = h >= 5 && h < 10 ? "morning" : h >= 10 && h < 17 ? "day" : h >= 17 && h < 19 ? "sunset" : "night";
+    const night = phase === "night", wk = weekStats();
+    const W = Math.max(window.innerWidth - 32, seeds.length * 130 + 140, members.length * 78 + 90);
+    const totalPrayers = seeds.reduce((x, y) => x + y.waters, 0);
+    const since = (ms) => (p) => Date.now() - new Date(p.at) < ms;
+    const todayBy = (id) => allPrayers.filter((p) => p.seed === id && localDay(p.at) === todayKey()).length;
+    const prayedToday = new Set(allPrayers.filter((p) => localDay(p.at) === todayKey()).map((p) => p.by));
+    const notesThisWeek = allNotes.filter(since(7 * DAY)).length;
+    const hill = night ? ["#2F5D4A", "#244A3B", "#6E5A3E"] : phase === "sunset" ? ["#7FB27A", "#5E9A5F", "#C9A27A"] : ["#93D08F", "#5FB26B", "#D8B98A"];
+    const rnd = (i, m) => ((i * 9301 + 49297) % 233280) / 233280 * m;   // same "random" spots every time
+    app.innerHTML = `
+      <div class="world-wrap"><div class="world ${phase}" style="width:${W}px">
+        <div class="w-label">🌍 ${phase === "morning" ? "Good morning" : phase === "day" ? "A sunny day" : phase === "sunset" ? "Golden hour" : "A quiet night"} in our garden</div>
+        ${night ? Array.from({ length: 40 }, (_, i) => `<span class="star" style="left:${rnd(i + 1, W)}px;top:${rnd(i + 77, 200)}px;animation-delay:${rnd(i, 2)}s"></span>`).join("") : ""}
+        <div class="w-sun">${night ? "🌙" : "☀️"}</div>
+        ${wk.total >= wk.goal ? `<svg class="rainbow" viewBox="0 0 200 100" aria-label="Rainbow: we reached our weekly prayer goal">${["#E57373", "#FFB74D", "#FFF176", "#81C784", "#64B5F6", "#9575CD"].map((c, i) => `<path d="M${10 + i * 6} 100 A${90 - i * 6} ${90 - i * 6} 0 0 1 ${190 - i * 6} 100" stroke="${c}" stroke-width="6" fill="none"/>`).join("")}</svg>` : ""}
+        ${night ? "" : [0, 1, 2].map((i) => `<span class="cloud" style="--w:${W + 140}px;top:${50 + i * 42}px;animation-duration:${38 + i * 14}s;animation-delay:-${i * 13}s">☁️</span>`).join("")}
+        <svg class="hills" viewBox="0 0 1000 240" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 110 Q160 50 330 100 T660 90 T1000 80 V240 H0Z" fill="${hill[0]}"/>
+          <path d="M0 150 Q220 100 440 140 T850 130 T1000 140 V240 H0Z" fill="${hill[1]}"/>
+          <path d="M0 208 Q250 188 500 203 T1000 198 V240 H0Z" fill="${hill[2]}"/>
+        </svg>
+        ${Array.from({ length: Math.min(45, Math.floor(totalPrayers / 5)) }, (_, i) => `<span class="flower" style="left:${rnd(i + 3, W - 20)}px;bottom:${50 + rnd(i + 11, 80)}px">${["🌼", "🌸", "🌷", "🌼"][i % 4]}</span>`).join("")}
+        ${seeds.map((x, i) => { const sg = stage(x), fr = fruitOf(x), sz = 40 + sg.rings * 12, n = todayBy(x.id); return `
+          <button class="wplant" style="left:${80 + i * 130 + rnd(i + 5, 24)}px" onclick="go('seed', ${x.id})" aria-label="${esc(x.nick)}">
+            ${n ? `<span class="drops">💧 ${n} today</span>` : ""}
+            <span class="sway" style="font-size:${fr ? Math.max(sz, 70) : sz}px;animation-delay:-${rnd(i, 3)}s">${fr ? fr.tree : sg.icon}
+              ${fr ? `<span class="wf" style="left:20%;top:18%">${fr.fruit}</span><span class="wf" style="left:55%;top:30%">${fr.fruit}</span>` : ""}</span>
+            <span class="tag">${esc(x.nick)}</span></button>`; }).join("")}
+        ${Array.from({ length: Math.min(6, notesThisWeek) }, (_, i) => `<span class="butterfly" style="left:${rnd(i + 21, W - 180)}px;bottom:${210 + rnd(i + 31, 110)}px;animation-delay:-${i * 1.7}s">🦋</span>`).join("")}
+        ${members.map((p, i) => `
+          <div class="walker ${i % 2 ? "stroll" : ""}" style="left:${50 + i * ((W - 100) / Math.max(1, members.length - 1 || 1))}px;animation-delay:-${i * 2}s">
+            <div class="bob" style="animation-delay:-${rnd(i, 1.3)}s">${avatar(p, 48)}${prayedToday.has(p.id) ? `<span class="pray">💧</span>` : ""}</div>
+            <small>${esc(p.id === m.id ? "You" : p.name)}</small></div>`).join("")}
+      </div></div>
+      <div class="card"><p class="label">How the garden grows</p>
+        <div class="legend"><span>🌱 Tap a plant to water it</span><span>🌼 a flower for every 5 prayers</span><span>🦋 a prayer message this week</span>
+          <span>💧 above a friend = prayed today</span><span>🌈 appears when we hit the weekly goal</span></div>
+        <p class="sub" style="font-size:13px">The sky follows the time of day. ${seeds.length > 2 ? "Swipe sideways to explore the whole garden." : ""}</p></div>
+      <button class="btn" onclick="go('profile')">✨ Customise my avatar</button>`;
   }
 
   if (screen === "seeds") {
@@ -595,6 +816,13 @@ function render() {
   }
 
   if (undoStack.length) app.innerHTML += `<div class="toast"><span>${undoStack[undoStack.length - 1].label}</span><button onclick="undo()">Undo</button></div>`;
+  if (viewer && !popup) { const ph = photos.find((x) => x.id === viewer), ev = ph && eventById(ph.event);
+    if (ph) app.innerHTML += `<div class="overlay" onclick="if (event.target === this) closeViewer()"><div class="box viewer">
+      <img src="${esc(ph.url)}" alt="${esc(ph.caption || "Outing photo")}">
+      ${ph.caption ? `<p class="big" style="font-size:16px">${esc(ph.caption)}</p>` : ""}
+      <div class="row" style="align-items:center;justify-content:center">${avatar(person(ph.by), 28)}<span class="sub" style="font-size:13px">${esc(person(ph.by).name)} · ${ev ? esc(ev.title) + " · " : ""}${shortDate(ph.at)}</span></div>
+      <button class="btn" onclick="closeViewer()">Close</button>
+      ${ph.by === m.id || m.leader ? `<button class="btn dashed" onclick="deletePhoto(${ph.id})">Remove photo</button>` : ""}</div></div>`; }
   if (popup) app.innerHTML += `<div class="overlay" onclick="if (event.target === this) closePopup()"><div class="box">
     <div class="bigemoji">${popup.emoji}</div><p class="title">${popup.title}</p>${popup.sub ? `<p class="sub">${popup.sub}</p>` : ""}
     <p class="vs">“${popup.verse[0]}”<br>${popup.verse[1]}</p>
@@ -667,7 +895,8 @@ function toggleMilestone(key) {
     const now = seedById(s.id); if (!now || had) { celebrate = ""; render(); return; }
     const kindNow = kindOf(now), fr = key === "saved" ? fruitOf(now) : null;
     celebrate = "";
-    if (fr) celebrateBig(fr.fruit, esc(now.nick) + " has borne fruit!", an(fr.name).replace(/^a/, "A") + " after " + monthText(fr.months) + " of watering. Praise God!", [fr.fruit, "🎉", "✝️", "✨"]);
+    if (fr) celebrateBig(fr.fruit, "🎉 Party in heaven!", esc(now.nick) + " has borne fruit: " + an(fr.name) + " after " + monthText(fr.months) + " of watering.", [fr.fruit, "🎉", "🥳", "✝️", "✨", "👼"],
+      ["Likewise, I say unto you, there is joy in the presence of the angels of God over one sinner that repenteth.", "Luke 15:10"]);
     else celebrateBig(m.icon, esc(now.nick) + ": " + m.label + "!", "🟤 A new ring for the tree." + (kindNow && kindNow !== kindBefore ? " It’s growing into " + an(kindNow.name) + "! " + kindNow.fruit : ""), [m.icon, "🎉", "🌿", "✨"]);
   });
 }
@@ -683,13 +912,71 @@ function plant() {
 }
 function planWith(seedId) { go("newevent"); draft.friend = String(seedId); draft.title = "Outing with " + seedById(seedId).nick; render(); }
 
+// ----- praying for outings (feels instant, saves in the background) -----
+const OUTING_CHEERS = ["🙏 Prayed! May it be a blessed time.", "🙏 Covering this outing in prayer!", "🙏 Amen! Praying for open hearts.", "🙏 Thank you for praying!"];
+function prayForEvent(id, ev) {
+  const e = eventById(id), before = earned(), wkBefore = weekStats();
+  myPrayers.count++;
+  if (!myPrayers.days.includes(todayKey())) myPrayers.days.push(todayKey());
+  allEventPrayers.push({ event: id, by: me().id, at: new Date().toISOString() });
+  if (ev && ev.clientX) splash(ev.clientX, ev.clientY, "🙏");
+  buzz(false);
+  api("prayEvent", { event_id: id }).then((r) => {
+    undoStack.push({ label: "Prayed for " + esc(e.title), reverse: () => api("unprayEvent", { id: r.id }) });
+    if (!popup) render();
+  }).catch((err) => { alert(err.message); refresh().then(render); });
+  const fresh = BADGES.filter((b) => earned().includes(b.name) && !before.includes(b.name)), wkNow = weekStats();
+  celebrate = "";
+  if (fresh.length) celebrateBig(fresh[0].icon, "New badge: " + fresh[0].name + "!", "Earned for: " + fresh[0].how.toLowerCase() + ". Keep going!", ["🙏", "✨", fresh[0].icon]);
+  else if (wkBefore.total < wkBefore.goal && wkNow.total >= wkNow.goal) celebrateBig("🌊", "Our CG hit this week’s prayer goal!", "A prayer a day each. Your prayer made it happen.", ["💧", "🌊", "🙏"]);
+  else celebrate = pick(OUTING_CHEERS);
+  render();
+}
+
+// ----- outing photos -----
+async function resizeImage(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error("Couldn’t read that photo. Try a different one.")); i.src = url; });
+    const k = Math.min(1, 1280 / Math.max(img.width, img.height));   // shrink big photos so they upload fast
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL("image/jpeg", 0.82);
+  } finally { URL.revokeObjectURL(url); }
+}
+async function uploadPhotos(input) {
+  const files = [...input.files].slice(0, 10), e = eventById(currentId), caption = (draft.caption || "").trim();
+  input.value = "";
+  if (!files.length || !e) return;
+  uploading = { done: 0, total: files.length }; render();
+  let ok = 0;
+  for (const f of files) {
+    try { const dataUrl = await resizeImage(f); await api("uploadPhoto", { event_id: e.id, data: dataUrl.split(",")[1], caption: caption }); ok++; }
+    catch (err) { alert(err.message); }
+    uploading.done++; render();
+  }
+  uploading = null; draft.caption = "";
+  try { await refresh(); } catch (_) {}
+  render();
+  if (ok) celebrateBig("📸", plural(ok, "photo") + " shared!", "Thanks for capturing the memories from " + esc(e.title) + ".", ["📸", "✨", "💛"]);
+}
+function viewPhoto(id) { viewer = id; render(); }
+function closeViewer() { viewer = null; render(); }
+function deletePhoto(id) {
+  if (!confirm("Remove this photo for everyone?")) return;
+  viewer = null;
+  run(async () => { await api("deletePhoto", { id: id }); });
+}
+
 function rsvp(yes) { const e = eventById(currentId); run(async () => { await api("rsvp", { event_id: e.id, going: yes }); buzz(yes); }); }
+function rsvpHome(id) { run(async () => { await api("rsvp", { event_id: id, going: true }); }).then(() => { confetti(["🙋", "🎉", "💛", "📅"]); buzz(true); }); }
 function saveEvent() {
   if (!draft.title.trim()) return alert("Give your outing a name first.");
   if (!draft.date) return alert("Pick a date.");
   run(async () => {
     const r = await api("createEvent", { type: draft.type, title: draft.title, date: draft.date, time: draft.time, place: draft.place,
-                                         invited: draft.invited.map(Number), friend_seed: draft.friend ? Number(draft.friend) : null });
+                                         invited: draft.invited.map(Number), friend_seed: draft.friend ? Number(draft.friend) : null, invite_only: !!draft.inviteOnly });
     screen = "event"; currentId = r.id; buzz(true);
   }).then(() => { if (screen === "event" && confirm("Outing created! Send the invite on Telegram now?")) shareEvent(currentId); });
 }
@@ -714,7 +1001,8 @@ function decide(id, yes) {
 }
 function saveProfile() {
   if (!(draft.name || "").trim()) return alert("Please enter your name.");
-  run(async () => { await api("saveProfile", { name: draft.name, avatar: draft.avatar, color: draft.color }); screen = status === "pending" ? "home" : "home"; buzz(true); });
+  run(async () => { await api("saveProfile", { name: draft.name, avatar: draft.avatar, color: draft.color }); screen = status === "pending" ? "home" : "world"; })
+    .then(() => { if (status === "approved") celebrateBig(avatar(me(), 110), "Looking good, " + esc(me().name) + "!", "Your new look is in the garden world. 🌍", ["✨", "💛", "⭐"]); });
 }
 
 // ================= START =================
@@ -727,7 +1015,7 @@ async function start() {
 // Quietly pick up other members' changes when you come back to the app, and every minute
 function quietRefresh() {
   const typing = document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-  if (busy || typing || status !== "approved" || ["newevent", "profile", "plant"].includes(screen)) return;
+  if (busy || typing || uploading || viewer || status !== "approved" || ["newevent", "profile", "plant"].includes(screen)) return;
   refresh().then(render).catch(() => {});
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) quietRefresh(); });

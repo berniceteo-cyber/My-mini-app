@@ -8,76 +8,92 @@
 <style>
   :root {
     --green: #2E7D4F; --green-dark: #1F5C39; --green-soft: #EEF5EF;
-    --blue: #2563A8; --blue-soft: #EAF1F9;
-    --ink: #1E2A22; --muted: #56635A; --line: #E2E6DE;
-    --bg: #F6F7F2; --card: #FFFFFF;
+    --blue: #2563A8; --blue-soft: #EAF1F9; --gold-soft: #FFF4D6; --gold: #F2C76B;
+    --ink: #1E2A22; --muted: #56635A; --line: #E2E6DE; --bg: #F6F7F2; --card: #FFFFFF;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink);
-         font-family: -apple-system, "Segoe UI", system-ui, sans-serif; }
-  header { position: sticky; top: 0; background: var(--card); border-bottom: 1px solid var(--line);
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, "Segoe UI", system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--card); border-bottom: 1px solid var(--line);
            height: 60px; display: flex; align-items: center; gap: 8px; padding: 0 12px; }
-  header h1 { margin: 0; font-size: 20px; }
-  .back { width: 44px; height: 44px; border: none; background: none; font-size: 26px; cursor: pointer; }
-  main { padding: 16px 16px 100px; display: flex; flex-direction: column; gap: 14px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px;
-          display: flex; flex-direction: column; gap: 8px; }
+  header h1 { margin: 0; font-size: 20px; flex: 1; }
+  .back { width: 44px; height: 44px; border: none; background: none; font-size: 28px; cursor: pointer; color: var(--ink); }
+  .me-btn { border: none; background: none; padding: 0; cursor: pointer; }
+  main { padding: 16px 16px 150px; display: flex; flex-direction: column; gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
   .label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 0; }
   .big { font-size: 18px; font-weight: 800; margin: 0; }
   .sub { font-size: 15px; color: var(--muted); margin: 0; }
-  .btn { height: 50px; border-radius: 12px; border: none; background: var(--green); color: #fff;
-         font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; }
+  .btn { min-height: 50px; border-radius: 12px; border: none; background: var(--green); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; padding: 0 12px; }
   .btn.outline { background: #fff; color: var(--green); border: 2px solid var(--green); }
   .btn.blue { background: var(--blue); }
+  .btn.grey { background: #fff; color: var(--muted); border: 2px solid var(--muted); }
   .btn.dashed { background: none; color: var(--muted); border: 2px dashed #B9C3B6; }
-  .row { display: flex; gap: 12px; }
-  .stat { flex: 1; border-radius: 12px; padding: 12px; }
-  .stat b { display: block; font-size: 26px; }
-  .item { text-align: left; width: 100%; font: inherit; color: inherit; cursor: pointer;
-          display: flex; gap: 14px; align-items: center; }
-  .badge { width: 52px; height: 52px; flex-shrink: 0; border-radius: 12px; background: var(--green-soft);
-           display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--green-dark); font-weight: 800; }
+  .row { display: flex; gap: 10px; }
+  .stat { flex: 1; border-radius: 12px; padding: 12px; font-size: 13px; }
+  .stat b { display: block; font-size: 24px; }
+  .item { text-align: left; width: 100%; font: inherit; color: inherit; cursor: pointer; display: flex; gap: 14px; align-items: center; }
+  .tile { width: 52px; height: 56px; flex-shrink: 0; border-radius: 12px; background: var(--green-soft); color: var(--green-dark);
+          display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; line-height: 1.1; }
+  .tile small { font-size: 12px; } .tile span { font-size: 20px; }
+  .badge { width: 52px; height: 52px; flex-shrink: 0; border-radius: 12px; background: var(--green-soft); display: flex; align-items: center; justify-content: center; font-size: 26px; }
+  .av { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; border: 2px solid #fff; }
+  .stack { display: flex; } .stack .av + .av { margin-left: -10px; }
   .verse { background: #E9EFE6; border-radius: 16px; padding: 16px; font-style: italic; line-height: 1.45; }
-  .bar { height: 12px; border-radius: 6px; background: var(--line); overflow: hidden; }
-  .bar div { height: 100%; background: var(--blue); }
+  .verse b { font-style: normal; display: block; margin-top: 4px; }
+  .hero { background: var(--green); color: #fff; border-radius: 20px; padding: 18px; display: flex; gap: 14px; align-items: center; }
+  .hero p { margin: 0; } .hero .hi { font-size: 24px; font-weight: 800; } .hero .chip { background: rgba(255,255,255,.18); }
+  .chip { display: inline-block; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--green-soft); color: var(--green-dark); }
+  .garden { display: flex; gap: 6px; overflow-x: auto; padding: 8px 4px 0; background: linear-gradient(to top, #C9A882 0 18px, transparent 18px); border-radius: 12px; }
+  .gplant { border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 72px; min-height: 100px; cursor: pointer; font: inherit; }
+  .gplant small { font-size: 11px; font-weight: 700; color: #fff; background: rgba(0,0,0,.35); padding: 1px 6px; border-radius: 6px; margin-bottom: 2px; }
   .pot { position: relative; height: 170px; width: 100%; display: flex; align-items: flex-end; justify-content: center;
          background: linear-gradient(to top, #C9A882 0 22px, transparent 22px); border-radius: 12px; overflow: hidden; }
-  .plant { display: inline-block; line-height: 1; margin-bottom: 14px; transform-origin: bottom center; transition: font-size .5s ease; }
+  .plant { display: inline-block; line-height: 1; margin-bottom: 14px; transform-origin: bottom center; }
   .grow { animation: grow .7s ease; }
   @keyframes grow { 0% { transform: scale(1); } 40% { transform: scale(1.3) rotate(-6deg); } 70% { transform: scale(.95) rotate(3deg); } 100% { transform: scale(1); } }
   .drop { position: absolute; left: 50%; top: 0; font-size: 34px; animation: drop .6s ease-in forwards; }
   @keyframes drop { from { transform: translate(-50%, -30px); opacity: 1; } to { transform: translate(-50%, 90px); opacity: 0; } }
-  .levelup { background: #FFF4D6; color: #7A4B00; border-radius: 14px; padding: 12px; text-align: center; font-weight: 800; font-size: 17px; animation: pop .6s ease; }
-  @keyframes pop { 0% { transform: scale(.5); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
   .fruit { position: absolute; font-size: 30px; animation: pop .6s ease; }
-  .milestone { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 8px 12px;
-               border: 1px solid var(--line); border-radius: 12px; background: #fff; font: inherit; font-size: 15px;
-               font-weight: 700; color: var(--ink); text-align: left; cursor: pointer; }
-  .milestone.on { background: #FFF4D6; border-color: #F2C76B; }
+  .levelup { background: var(--gold-soft); color: #7A4B00; border-radius: 14px; padding: 12px; text-align: center; font-weight: 800; font-size: 16px; animation: pop .6s ease; }
+  @keyframes pop { 0% { transform: scale(.5); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+  .journey { display: flex; justify-content: space-between; width: 100%; font-size: 26px; }
+  .journey span { opacity: .25; } .journey span.done { opacity: 1; }
+  .milestone { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 8px 12px; border: 1px solid var(--line);
+               border-radius: 12px; background: #fff; font: inherit; font-size: 15px; font-weight: 700; color: var(--ink); text-align: left; cursor: pointer; }
+  .milestone.on { background: var(--gold-soft); border-color: var(--gold); }
   .badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .bdg { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 8px 4px;
-         border-radius: 12px; background: #F1F2EE; opacity: .45; }
+  .bdg { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 8px 4px; border-radius: 12px; background: #F1F2EE; opacity: .45; }
   .bdg span { font-size: 26px; } .bdg b { font-size: 11px; } .bdg small { font-size: 10px; color: var(--muted); }
-  .bdg.on { opacity: 1; background: #FFF4D6; }
-  .toast { position: fixed; left: 12px; right: 12px; bottom: 84px; background: #1E2A22; color: #fff; border-radius: 14px;
+  .bdg.on { opacity: 1; background: var(--gold-soft); }
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble { background: var(--blue-soft); border-radius: 4px 14px 14px 14px; padding: 10px 12px; flex: 1; font-size: 15px; line-height: 1.4; }
+  .bubble small { display: block; color: var(--muted); font-size: 12px; margin-bottom: 2px; font-weight: 700; }
+  label { font-weight: 700; font-size: 15px; }
+  input, textarea, select { min-height: 48px; border-radius: 12px; border: 1px solid #B9C3B6; padding: 10px 14px; font-size: 16px; width: 100%; font-family: inherit; background: #fff; color: var(--ink); }
+  textarea { min-height: 80px; resize: vertical; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pick button { min-width: 48px; min-height: 48px; border-radius: 12px; border: 2px solid var(--line); background: #fff; font-size: 24px; cursor: pointer; }
+  .pick button.on { border-color: var(--green); background: var(--green-soft); }
+  .pick.colors button { border-radius: 50%; }
+  .pick.colors button.on { border-color: var(--ink); }
+  .pick.people button { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; color: var(--ink); }
+  .toast { position: fixed; left: 12px; right: 12px; bottom: 84px; z-index: 6; background: #1E2A22; color: #fff; border-radius: 14px;
            padding: 10px 10px 10px 16px; display: flex; align-items: center; gap: 12px; font-size: 15px; animation: pop .3s ease; }
   .toast span { flex: 1; }
-  .toast button { min-height: 44px; padding: 0 16px; border: none; border-radius: 10px; background: #F2C76B; color: #1E2A22;
-                  font-size: 15px; font-weight: 800; cursor: pointer; }
-  .journey { display: flex; justify-content: space-between; width: 100%; font-size: 26px; }
-  .journey span { opacity: .25; }
-  .journey span.done { opacity: 1; }
-  input { height: 48px; border-radius: 12px; border: 1px solid #B9C3B6; padding: 0 14px; font-size: 16px; width: 100%; }
-  nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: var(--card);
-        border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); }
-  nav button { border: none; background: none; font-size: 12px; font-weight: 700; color: #5F6B63; cursor: pointer;
-               display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  .toast button { min-height: 44px; padding: 0 16px; border: none; border-radius: 10px; background: var(--gold); color: #1E2A22; font-size: 15px; font-weight: 800; cursor: pointer; }
+  nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 5; height: 72px; background: var(--card); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); }
+  nav button { border: none; background: none; font-size: 12px; font-weight: 700; color: #5F6B63; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
   nav button span { font-size: 22px; }
   nav button.active { color: var(--green); }
 </style>
 </head>
 <body>
-<header><button class="back" id="back" aria-label="Back" hidden>‹</button><h1 id="title">CG Hub</h1></header>
+<header>
+  <button class="back" id="back" aria-label="Back" hidden>‹</button>
+  <h1 id="title">CG Hub</h1>
+  <button class="me-btn" id="me-btn" aria-label="My profile"></button>
+</header>
 <main id="app"></main>
 <nav>
   <button data-tab="home"><span>🏠</span>Home</button>
@@ -87,31 +103,12 @@
 </nav>
 
 <script>
-// ---- Sample data (fake names only — real data comes later from a database) ----
-const events = [
-  { id: 1, title: "CG Night: Worship & Word", date: "Fri 30 Oct", time: "8:00 PM", place: "[Venue]", going: 6, mine: null },
-  { id: 2, title: "Seeds Outing: Lunch", date: "Sun 1 Nov", time: "12:30 PM", place: "[Venue]", going: 4, mine: null },
-  { id: 3, title: "Prayer Walk", date: "Wed 4 Nov", time: "7:30 PM", place: "[Venue]", going: 3, mine: null }
-];
-const members = [
-  { name: "Member A", role: "CG Leader" }, { name: "Member B", role: "Asst. Leader" },
-  { name: "Member C" }, { name: "Member D" }, { name: "Member E" }, { name: "Member F" }
-];
-const DAY = 86400000;
-const daysAgo = (d) => new Date(Date.now() - d * DAY).toISOString();
-let seeds = [
-  { id: 1, nick: "Friend J", by: "Member B", outing: "Coffee catch-up", waters: 1,
-    plantedAt: daysAgo(14), milestones: {} },
-  { id: 2, nick: "Friend K", by: "Member A", outing: "Badminton", waters: 22,
-    plantedAt: daysAgo(150), milestones: { metcg: daysAgo(100), church: daysAgo(40) } },
-  { id: 3, nick: "Friend L", by: "Member D", outing: "Birthday dinner", waters: 41,
-    plantedAt: daysAgo(430), milestones: { metcg: daysAgo(380), church: daysAgo(300), saved: daysAgo(30), fp: daysAgo(10) } }
-];
-// Remember seeds on this phone (until we add a shared database)
-try { const saved = JSON.parse(localStorage.getItem("cg-seeds-v2")); if (saved) seeds = saved; } catch (e) {}
-function save() { try { localStorage.setItem("cg-seeds-v2", JSON.stringify(seeds)); } catch (e) {} }
+// ================= SETTINGS YOU CAN CHANGE =================
+const BOT_LINK = "https://t.me/Dhelfhbot";   // link people get when you invite them
+const AVATARS = ["🦁","🐻","🐼","🦊","🐨","🐯","🐸","🐧","🦉","🐳","🦋","🌻"];
+const COLORS  = ["#F2C76B","#9AD0A8","#9CC3EA","#F4A99B","#C9B6E8","#F7C59F"];
 
-// Moments of impact: can be ticked in any order
+// Moments that add a ring to the tree (any order)
 const MILESTONES = [
   { key: "metcg",   icon: "🤝", label: "Met the CG" },
   { key: "church",  icon: "⛪", label: "Stepped into church" },
@@ -119,261 +116,369 @@ const MILESTONES = [
   { key: "planted", icon: "🏡", label: "Planted in church" },
   { key: "fp",      icon: "📖", label: "Started FP" }
 ];
-
-// What a seed grows into is NOT decided at planting.
-// It's decided only as milestones happen, by the pace of the journey:
-// average months per milestone (change "pace" to adjust).
-// Each kind has its own look at every ring; fruit appears at Salvation.
+const STAGES = ["Seedling", "Growing", "Taking root", "Strong tree", "Deeply rooted"];
+// What a seed becomes is decided only as milestones happen, by the pace
+// (average months per milestone). Fruit appears at Salvation.
 const KINDS = [
-  { pace: 1,        fruit: "🍓", name: "strawberry plant", looks: ["🌱", "🌿", "☘️", "🌼", "🌼", "🌼"] },
-  { pace: 3,        fruit: "🍊", name: "orange tree",      looks: ["🌱", "🌿", "🪴", "🌳", "🌳", "🌳"] },
-  { pace: Infinity, fruit: "🥥", name: "coconut palm",     looks: ["🌱", "🌿", "🪴", "🌴", "🌴", "🌴"] }
+  { pace: 1,        fruit: "🍓", name: "strawberry plant", looks: ["🌱","🌿","☘️","🌼","🌼","🌼"] },
+  { pace: 3,        fruit: "🍊", name: "orange tree",      looks: ["🌱","🌿","🪴","🌳","🌳","🌳"] },
+  { pace: Infinity, fruit: "🥥", name: "coconut palm",     looks: ["🌱","🌿","🪴","🌴","🌴","🌴"] }
 ];
+// Prayer badges (earned by watering)
+const BADGES = [
+  { icon: "💧", name: "First Drop",      how: "Pray once",               got: (p) => p.count >= 1 },
+  { icon: "🌦️", name: "Spring Shower",   how: "Pray 10 times",           got: (p) => p.count >= 10 },
+  { icon: "🌧️", name: "Rain of Prayer",  how: "Pray 25 times",           got: (p) => p.count >= 25 },
+  { icon: "🌊", name: "River of Prayer", how: "Pray 50 times",           got: (p) => p.count >= 50 },
+  { icon: "🏆", name: "Prayer Warrior",  how: "Pray 100 times",          got: (p) => p.count >= 100 },
+  { icon: "🔥", name: "On Fire",         how: "3 days in a row",         got: () => streak() >= 3 },
+  { icon: "⭐", name: "Faithful Week",   how: "7 days in a row",         got: () => streak() >= 7 },
+  { icon: "🤲", name: "Big Heart",       how: "Pray for 3 friends",      got: (p) => p.seeds.length >= 3 }
+];
+
+// ================= HELPERS =================
+const DAY = 86400000;
+const daysAgo = (d) => new Date(Date.now() - d * DAY).toISOString();
+const dayFromNow = (d) => new Date(Date.now() + d * DAY).toISOString().slice(0, 10);
+const todayKey = (d) => (d || new Date()).toISOString().slice(0, 10);
+const esc = (t) => String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const an = (w) => (/^[aeiou]/i.test(w) ? "an " : "a ") + w;
+const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
 const monthsBetween = (a, b) => (new Date(b) - new Date(a)) / (30.44 * DAY);
+const monthText = (n) => n < 1 ? "under a month" : plural(n, "month");
+const shortDate = (iso) => new Date(iso).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" });
+const fmtDate = (d) => new Date(d + "T00:00").toLocaleDateString("en-SG", { weekday: "short", day: "numeric", month: "short" });
+const fmtTime = (t) => { if (!t) return ""; const [h, m] = t.split(":").map(Number); return ((h % 12) || 12) + ":" + String(m).padStart(2, "0") + (h < 12 ? " AM" : " PM"); };
+function avatar(p, size) {
+  size = size || 40;
+  return `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.55)}px;background:${p.color}">${p.avatar}</span>`;
+}
+
+// ================= DATA (sample only — fake names) =================
+const tg = window.Telegram && Telegram.WebApp;
+const tgName = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) || "";
+let db = {
+  profile: null,
+  members: [
+    { id: "a", name: "Member A", role: "CG Leader",    avatar: "🦁", color: "#F2C76B" },
+    { id: "b", name: "Member B", role: "Asst. Leader", avatar: "🐼", color: "#9CC3EA" },
+    { id: "c", name: "Member C", role: "",             avatar: "🦊", color: "#F4A99B" },
+    { id: "d", name: "Member D", role: "",             avatar: "🐸", color: "#9AD0A8" },
+    { id: "e", name: "Member E", role: "",             avatar: "🦉", color: "#C9B6E8" }
+  ],
+  events: [
+    { id: 1, type: "cg",     title: "CG Night: Worship & Word", date: dayFromNow(8),  time: "20:00", place: "[Venue]", by: "a", invited: ["a","b","c","d","e"], going: ["a","b","d"], friend: null },
+    { id: 2, type: "outing", title: "Lunch after service",      date: dayFromNow(10), time: "12:30", place: "[Venue]", by: "b", invited: ["a","b","c"],         going: ["b","c"],     friend: 2 },
+    { id: 3, type: "outing", title: "Badminton night",          date: dayFromNow(13), time: "19:30", place: "[Venue]", by: "d", invited: ["a","d","e"],         going: ["d"],         friend: null }
+  ],
+  seeds: [
+    { id: 1, nick: "Friend J", by: "b", outing: "Coffee catch-up", waters: 1, plantedAt: daysAgo(14), milestones: {},
+      notes: [{ by: "b", text: "Lord, open the door for a good conversation this week.", at: daysAgo(3) }] },
+    { id: 2, nick: "Friend K", by: "a", outing: "Badminton", waters: 22, plantedAt: daysAgo(150), milestones: { metcg: daysAgo(100), church: daysAgo(40) },
+      notes: [{ by: "d", text: "Praying for peace in a stressful season at work.", at: daysAgo(5) }] },
+    { id: 3, nick: "Friend L", by: "d", outing: "Birthday dinner", waters: 41, plantedAt: daysAgo(430),
+      milestones: { metcg: daysAgo(380), church: daysAgo(300), saved: daysAgo(30), fp: daysAgo(10) }, notes: [] }
+  ],
+  prayers: { count: 0, days: [], seeds: [] }
+};
+// Everything is remembered on this phone (until we add a shared database)
+try { const saved = JSON.parse(localStorage.getItem("cg-hub-v3")); if (saved) db = saved; } catch (e) {}
+function save() { try { localStorage.setItem("cg-hub-v3", JSON.stringify(db)); } catch (e) {} }
+
+function me() { return Object.assign({ id: "me", name: tgName || "You", avatar: "🌻", color: "#F2C76B", role: "" }, db.profile || {}); }
+function person(id) { return id === "me" ? me() : (db.members.find((m) => m.id === id) || { name: "Someone", avatar: "🙂", color: "#E2E6DE" }); }
+const seedById = (id) => db.seeds.find((s) => s.id === id);
+
+// ================= SEED LOGIC =================
 function kindOf(s) {
   const dates = Object.values(s.milestones);
-  if (!dates.length) return null;                      // no milestones yet: still a mystery
+  if (!dates.length) return null;
   const latest = dates.reduce((x, y) => (new Date(x) > new Date(y) ? x : y));
-  const pace = monthsBetween(s.plantedAt, latest) / dates.length;
-  return KINDS.find((k) => pace <= k.pace);
+  return KINDS.find((k) => monthsBetween(s.plantedAt, latest) / dates.length <= k.pace);
+}
+function stage(s) {
+  const rings = MILESTONES.filter((m) => s.milestones[m.key]).length, i = Math.min(rings, STAGES.length - 1), kind = kindOf(s);
+  return { icon: kind ? kind.looks[i] : "🌱", rings: rings, kind: kind, size: Math.min(140, 64 + rings * 16),
+           label: STAGES[i] + (kind ? " · becoming " + an(kind.name) : " · what will it become?") };
 }
 function fruitOf(s) {
   if (!s.milestones.saved) return null;
-  const m = monthsBetween(s.plantedAt, s.milestones.saved);
-  return Object.assign({ months: Math.max(0, Math.round(m)), tree: kindOf(s).looks[5] }, kindOf(s));
+  const k = kindOf(s);
+  return Object.assign({ months: Math.max(0, Math.round(monthsBetween(s.plantedAt, s.milestones.saved))), tree: k.looks[5] }, k);
 }
-function timeGrowing(s) {
-  const d = Math.floor((Date.now() - new Date(s.plantedAt)) / DAY);
-  if (d < 14) return d + (d === 1 ? " day" : " days");
-  if (d < 60) return Math.floor(d / 7) + " weeks";
-  return Math.round(d / 30.44) + " months";
-}
-const monthText = (n) => n < 1 ? "under a month" : n + " month" + (n === 1 ? "" : "s");
-const shortDate = (iso) => new Date(iso).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" });
-
-// ---- App state ----
-let screen = "home", current = null, justWatered = false, celebrate = "", undoStack = [];
-const tg = window.Telegram && Telegram.WebApp;
-const me = (tg && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) || "friend";
-
-// Stops typed text from being treated as code
-const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
-
-// Growth comes from milestones: each milestone you log adds a ring.
-// Watering never counts down to anything; it earns prayer badges instead.
-const STAGES = [
-  { icon: "🌱", label: "Seedling" },
-  { icon: "🌿", label: "Growing" },
-  { icon: "🪴", label: "Taking root" },
-  { icon: "🌳", label: "Strong tree" },
-  { icon: "🌳", label: "Deeply rooted" }
-];
-function stage(s) {
-  const rings = MILESTONES.filter((m) => s.milestones[m.key]).length;
-  const i = Math.min(rings, STAGES.length - 1), kind = kindOf(s);
-  return {
-    icon: kind ? kind.looks[i] : "🌱", rings: rings, kind: kind, size: Math.min(140, 64 + rings * 16),
-    label: STAGES[i].label + (kind ? " · becoming " + an(kind.name) : " · what will it become?")
-  };
-}
-const ringText = (n) => n + " ring" + (n === 1 ? "" : "s");
-
-// ---- Prayer badges (earned by watering; saved on this phone) ----
-let myPrayers = { count: 0, days: [], seeds: [] };
-try { const p = JSON.parse(localStorage.getItem("cg-my-prayers")); if (p) myPrayers = p; } catch (e) {}
-const todayKey = (d) => (d || new Date()).toISOString().slice(0, 10);
 function streak() {
   let n = 0, d = new Date();
-  if (!myPrayers.days.includes(todayKey(d))) d = new Date(Date.now() - DAY);
-  while (myPrayers.days.includes(todayKey(d))) { n++; d = new Date(d - DAY); }
+  if (!db.prayers.days.includes(todayKey(d))) d = new Date(Date.now() - DAY);
+  while (db.prayers.days.includes(todayKey(d))) { n++; d = new Date(d - DAY); }
   return n;
 }
-const BADGES = [
-  { icon: "💧", name: "First Drop",      how: "Pray for a friend",          got: (p) => p.count >= 1 },
-  { icon: "🌦️", name: "Spring Shower",   how: "Pray 10 times",              got: (p) => p.count >= 10 },
-  { icon: "🌧️", name: "Rain of Prayer",  how: "Pray 25 times",              got: (p) => p.count >= 25 },
-  { icon: "🌊", name: "River of Prayer", how: "Pray 50 times",              got: (p) => p.count >= 50 },
-  { icon: "🏆", name: "Prayer Warrior",  how: "Pray 100 times",             got: (p) => p.count >= 100 },
-  { icon: "🔥", name: "On Fire",         how: "Pray 3 days in a row",       got: () => streak() >= 3 },
-  { icon: "⭐", name: "Faithful Week",   how: "Pray 7 days in a row",       got: () => streak() >= 7 },
-  { icon: "🤲", name: "Big Heart",       how: "Pray for 3 different friends", got: (p) => p.seeds.length >= 3 }
-];
-const earned = () => BADGES.filter((b) => b.got(myPrayers)).map((b) => b.name);
+const earned = () => BADGES.filter((b) => b.got(db.prayers)).map((b) => b.name);
 
-function go(to, item) { screen = to; current = item || null; justWatered = false; celebrate = ""; undoStack = []; render(); window.scrollTo(0, 0); }
+// ================= APP STATE =================
+let screen = "home", currentId = null, justWatered = false, celebrate = "", undoStack = [], draft = {};
+const backTo = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", profile: "home", addmember: "cg" };
+const titles = { home: "CG Hub", events: "Events & Outings", event: "Event", newevent: "Plan an outing", cg: "Our CG",
+                 addmember: "Add a member", seeds: "Seeds", seed: "Seed", plant: "Plant a seed", profile: "My profile" };
 
+function go(to, id) {
+  screen = to; currentId = id == null ? null : id; justWatered = false; celebrate = ""; undoStack = [];
+  if (to === "profile") { const m = me(); draft = { name: m.name, avatar: m.avatar, color: m.color }; }
+  if (to === "newevent") draft = { type: "outing", title: "", date: dayFromNow(7), time: "19:00", place: "", invited: ["me"], friend: "" };
+  if (to === "addmember") draft = { name: "", role: "", avatar: AVATARS[0], color: COLORS[1] };
+  render(); window.scrollTo(0, 0);
+}
+function setDraft(k, v) { draft[k] = v; }
+function pickDraft(k, v) { draft[k] = v; render(); }
+function toggleInvite(id) { draft.invited = draft.invited.includes(id) ? draft.invited.filter((x) => x !== id) : draft.invited.concat(id); render(); }
+
+// ================= SCREENS =================
 function render() {
-  const app = document.getElementById("app");
-  const titles = { home: "CG Hub", events: "Events", event: "Event", cg: "Our CG", seeds: "Seeds", seed: "Seed", plant: "Plant a seed" };
+  const app = document.getElementById("app"), m = me();
   document.getElementById("title").textContent = titles[screen];
-  document.getElementById("back").hidden = !["event", "seed", "plant"].includes(screen);
-  const tab = { event: "events", seed: "seeds", plant: "seeds" }[screen] || screen;
+  document.getElementById("back").hidden = !backTo[screen];
+  document.getElementById("me-btn").innerHTML = avatar(m, 36);
+  const tab = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", addmember: "cg", profile: "home" }[screen] || screen;
   document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
+  const upcoming = db.events.filter((e) => e.date >= todayKey()).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 
   if (screen === "home") {
-    const total = seeds.reduce((a, s) => a + s.waters, 0);
-    const e = events[0];
+    const total = db.seeds.reduce((a, s) => a + s.waters, 0), fruits = db.seeds.filter((s) => s.milestones.saved).length;
+    const e = upcoming[0], st = streak(), got = earned();
     app.innerHTML = `
-      <div><p class="big" style="font-size:26px">Hi, ${esc(me)}!</p><p class="sub">Here’s what’s happening in our CG.</p></div>
-      <div class="card"><p class="label">Next up</p><p class="big">${e.title}</p><p class="sub">${e.date} · ${e.time}</p>
-        <button class="btn" onclick="go('event', events[0])">View event</button></div>
-      <div class="card"><p class="label">Our seeds</p>
-        <div class="row">
-          <div class="stat" style="background:var(--green-soft)"><b style="color:var(--green-dark)">${seeds.length}</b>friends planted</div>
-          <div class="stat" style="background:var(--blue-soft)"><b style="color:var(--blue)">${total}</b>times watered</div>
+      <div class="hero">
+        <button class="me-btn" onclick="go('profile')" aria-label="Edit my profile">${avatar(m, 60)}</button>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <p class="hi">Hi, ${esc(m.name)}!</p>
+          <p><span class="chip">💧 ${plural(db.prayers.count, "prayer")}</span> ${st > 1 ? `<span class="chip">🔥 ${st}-day streak</span>` : ""}</p>
         </div>
-        <button class="btn outline" onclick="go('seeds')">Water a seed</button></div>
-      <div class="card"><p class="label">My prayer badges</p>
-        <p class="sub">You’ve prayed ${myPrayers.count} time${myPrayers.count === 1 ? "" : "s"}${streak() > 1 ? " · 🔥 " + streak() + "-day streak" : ""}</p>
-        <div class="badges">${BADGES.map((b) => { const has = b.got(myPrayers); return `
-          <div class="bdg ${has ? "on" : ""}"><span>${b.icon}</span><b>${b.name}</b><small>${has ? "Earned" : b.how}</small></div>`; }).join("")}</div></div>
-      <div class="verse">“I have planted, Apollos watered; but God gave the increase.”<br><b style="font-style:normal">1 Corinthians 3:6</b></div>`;
+      </div>
+      ${db.profile ? "" : `<div class="card" style="background:var(--gold-soft);border-color:var(--gold)"><p class="big">Make it yours</p>
+        <p class="sub">Pick an avatar so your CG knows it’s you.</p><button class="btn" onclick="go('profile')">Create my profile</button></div>`}
+      <div class="card"><p class="label">Our garden</p>
+        <div class="garden">${db.seeds.map((s) => { const sg = stage(s), fr = fruitOf(s); return `
+          <button class="gplant" onclick="go('seed', ${s.id})"><span style="font-size:${30 + sg.rings * 7}px;line-height:1">${fr ? fr.fruit : sg.icon}</span><small>${esc(s.nick)}</small></button>`; }).join("")}
+        </div>
+        <div class="row">
+          <div class="stat" style="background:var(--green-soft)"><b style="color:var(--green-dark)">${db.seeds.length}</b>seeds planted</div>
+          <div class="stat" style="background:var(--blue-soft)"><b style="color:var(--blue)">${total}</b>times watered</div>
+          <div class="stat" style="background:var(--gold-soft)"><b style="color:#7A4B00">${fruits}</b>bore fruit</div>
+        </div>
+        <button class="btn outline" onclick="go('seeds')">Water a seed 💧</button></div>
+      ${e ? `<div class="card"><p class="label">Next up</p>
+        <div class="item"><div class="tile"><small>${fmtDate(e.date).split(" ")[2].toUpperCase()}</small><span>${fmtDate(e.date).split(" ")[1]}</span></div>
+          <div style="flex:1"><p class="big" style="font-size:16px">${esc(e.title)}</p><p class="sub">${fmtDate(e.date)} · ${fmtTime(e.time)}</p></div></div>
+        <div class="row" style="align-items:center"><div class="stack">${e.going.slice(0, 5).map((id) => avatar(person(id), 32)).join("")}</div>
+          <span class="sub" style="font-size:14px">${e.going.length} going</span></div>
+        <button class="btn" onclick="go('event', ${e.id})">View & RSVP</button></div>` : ""}
+      <div class="card"><p class="label">My prayer badges · ${got.length} of ${BADGES.length}</p>
+        <div class="badges">${BADGES.map((b) => { const has = got.includes(b.name); return `
+          <div class="bdg ${has ? "on" : ""}"><span>${b.icon}</span><b>${b.name}</b><small>${has ? "Earned" : b.how}</small></div>`; }).join("")}</div></div>`;
   }
 
   if (screen === "events") {
-    app.innerHTML = `<button class="btn dashed">+ New event (leaders only)</button>` +
-      events.map((e, i) => `
-        <button class="card item" onclick="go('event', events[${i}])">
-          <div class="badge" style="font-size:14px">${e.date.split(" ")[1]}<br>${e.date.split(" ")[2]}</div>
-          <div><p class="big" style="font-size:16px">${e.title}</p><p class="sub">${e.date} · ${e.time}</p><p class="sub">${e.going} going</p></div>
-        </button>`).join("");
+    app.innerHTML = `<button class="btn" onclick="go('newevent')">+ Plan an outing</button>` +
+      (upcoming.length ? upcoming.map((e) => `
+        <button class="card item" onclick="go('event', ${e.id})">
+          <div class="tile"><small>${fmtDate(e.date).split(" ")[2].toUpperCase()}</small><span>${fmtDate(e.date).split(" ")[1]}</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+            <span class="chip" style="align-self:flex-start">${e.type === "cg" ? "🙏 CG" : "🎉 Outing"}</span>
+            <p class="big" style="font-size:16px">${esc(e.title)}</p><p class="sub">${fmtDate(e.date)} · ${fmtTime(e.time)}</p>
+            <div class="row" style="align-items:center"><div class="stack">${e.going.slice(0, 4).map((id) => avatar(person(id), 28)).join("")}</div>
+              <span class="sub" style="font-size:13px">${e.going.length} going</span></div>
+          </div>
+        </button>`).join("") : `<p class="sub">No upcoming events yet. Plan one!</p>`);
   }
 
   if (screen === "event") {
-    const e = current;
+    const e = db.events.find((x) => x.id === currentId), mine = e.going.includes("me"), host = person(e.by), fr = e.friend ? seedById(e.friend) : null;
     app.innerHTML = `
-      <div class="card"><p class="big" style="font-size:22px">${e.title}</p>
-        <p class="sub">📅 ${e.date} · ${e.time}</p><p class="sub">📍 ${e.place}</p><p class="sub">👥 ${e.going} going</p></div>
+      <div class="card">
+        <span class="chip" style="align-self:flex-start">${e.type === "cg" ? "🙏 CG event" : "🎉 Outing"}</span>
+        <p class="big" style="font-size:22px">${esc(e.title)}</p>
+        <p class="sub">📅 ${fmtDate(e.date)} · ${fmtTime(e.time)}</p>
+        <p class="sub">📍 ${esc(e.place || "Place to be confirmed")}</p>
+        <div class="row" style="align-items:center">${avatar(host, 28)}<span class="sub" style="font-size:14px">Planned by ${esc(host.name)}</span></div>
+        ${fr ? `<p class="sub">🌱 Bringing a friend: <b>${esc(fr.nick)}</b></p>` : ""}
+      </div>
       <p class="big" style="font-size:16px">Are you coming?</p>
       <div class="row">
-        <button class="btn ${e.mine === "yes" ? "" : "outline"}" onclick="rsvp('yes')">I’m coming</button>
-        <button class="btn ${e.mine === "no" ? "" : "outline"}" style="${e.mine === "no" ? "background:var(--muted)" : "color:var(--muted);border-color:var(--muted)"}" onclick="rsvp('no')">Can’t make it</button>
-      </div>`;
+        <button class="btn ${mine ? "" : "outline"}" onclick="rsvp(true)">I’m coming</button>
+        <button class="btn grey" onclick="rsvp(false)">${mine ? "Can’t make it" : "Not this time"}</button>
+      </div>
+      <div class="card"><p class="label">Going · ${e.going.length}</p>
+        <div class="pick">${e.going.length ? e.going.map((id) => `<span title="${esc(person(id).name)}">${avatar(person(id), 40)}</span>`).join("") : `<span class="sub">Be the first!</span>`}</div>
+        <p class="label">Invited · ${e.invited.length}</p>
+        <div class="pick">${e.invited.map((id) => `<span title="${esc(person(id).name)}">${avatar(person(id), 34)}</span>`).join("")}</div></div>
+      <button class="btn blue" onclick="shareEvent(${e.id})">📨 Invite via Telegram</button>
+      <p class="sub" style="font-size:13px;text-align:center">Sends the event details to any chat you pick, with a link to our CG Hub.</p>`;
+  }
+
+  if (screen === "newevent") {
+    const people = [me()].concat(db.members);
+    app.innerHTML = `
+      <div class="field"><label>Type</label>
+        <div class="pick people"><button class="${draft.type === "outing" ? "on" : ""}" onclick="pickDraft('type','outing')">🎉 Outing</button>
+        <button class="${draft.type === "cg" ? "on" : ""}" onclick="pickDraft('type','cg')">🙏 CG event</button></div></div>
+      <div class="field"><label for="t">What’s the plan?</label><input id="t" value="${esc(draft.title)}" oninput="setDraft('title', this.value)" placeholder="e.g. Bowling night"></div>
+      <div class="row"><div class="field" style="flex:1"><label for="d">Date</label><input id="d" type="date" value="${draft.date}" oninput="setDraft('date', this.value)"></div>
+        <div class="field" style="flex:1"><label for="tm">Time</label><input id="tm" type="time" value="${draft.time}" oninput="setDraft('time', this.value)"></div></div>
+      <div class="field"><label for="pl">Where?</label><input id="pl" value="${esc(draft.place)}" oninput="setDraft('place', this.value)" placeholder="e.g. Bowling alley"></div>
+      <div class="field"><label>Invite members</label>
+        <div class="pick people">${people.map((p) => `<button class="${draft.invited.includes(p.id) ? "on" : ""}" onclick="toggleInvite('${p.id}')">${avatar(p, 32)}${esc(p.id === "me" ? "Me" : p.name)}</button>`).join("")}</div></div>
+      <div class="field"><label for="fr">Bringing a friend? (optional)</label>
+        <select id="fr" onchange="setDraft('friend', this.value)"><option value="">No one this time</option>
+        ${db.seeds.map((s) => `<option value="${s.id}" ${String(draft.friend) === String(s.id) ? "selected" : ""}>🌱 ${esc(s.nick)}</option>`).join("")}</select></div>
+      <button class="btn" onclick="saveEvent()">Create & invite</button>`;
   }
 
   if (screen === "cg") {
-    app.innerHTML = `<p class="sub">${members.length} members</p><div class="card">` +
-      members.map((m) => `
-        <div class="item"><div class="badge" style="width:44px;height:44px;border-radius:22px;font-size:18px">${m.name.slice(-1)}</div>
-        <span style="flex:1;font-weight:700">${m.name}</span>${m.role ? `<span class="sub" style="font-size:13px">${m.role}</span>` : ""}</div>`).join("") +
-      `</div><button class="btn dashed">+ Add member (leaders only)</button>`;
+    const people = [me()].concat(db.members);
+    app.innerHTML = `<p class="sub">${plural(people.length, "member")}</p><div class="card">` +
+      people.map((p) => `
+        <div class="item">${avatar(p, 48)}
+          <div style="flex:1"><p class="big" style="font-size:16px">${esc(p.name)}${p.id === "me" ? " (you)" : ""}</p>
+          ${p.role ? `<span class="chip">${esc(p.role)}</span>` : ""}</div>
+          ${p.id === "me" ? `<button class="btn outline" style="width:auto;min-height:40px" onclick="go('profile')">Edit</button>` : ""}
+        </div>`).join("") +
+      `</div><button class="btn dashed" onclick="go('addmember')">+ Add member (leaders)</button>
+      <p class="sub" style="font-size:13px">When we add the shared database, members will sign in automatically with their Telegram account, with no passwords needed.</p>`;
+  }
+
+  if (screen === "addmember") {
+    app.innerHTML = `
+      <div style="display:flex;justify-content:center">${avatar(draft, 96)}</div>
+      <div class="field"><label for="mn">Name</label><input id="mn" value="${esc(draft.name)}" oninput="setDraft('name', this.value)" placeholder="First name or nickname"></div>
+      <div class="field"><label for="mr">Role (optional)</label><input id="mr" value="${esc(draft.role)}" oninput="setDraft('role', this.value)" placeholder="e.g. Asst. Leader"></div>
+      ${avatarPicker()}
+      <button class="btn" onclick="saveMember()">Add to CG</button>`;
+  }
+
+  if (screen === "profile") {
+    app.innerHTML = `
+      <div style="display:flex;justify-content:center">${avatar(draft, 110)}</div>
+      <div class="field"><label for="pn">Your name</label><input id="pn" value="${esc(draft.name)}" oninput="setDraft('name', this.value)"></div>
+      ${avatarPicker()}
+      <button class="btn" onclick="saveProfile()">Save my profile</button>`;
   }
 
   if (screen === "seeds") {
-    app.innerHTML = `<button class="btn" onclick="go('plant')">+ Plant a seed</button>
+    app.innerHTML = `
+      <div class="verse">“I have planted, Apollos watered; but God gave the increase.”<b>1 Corinthians 3:6</b></div>
+      <button class="btn" onclick="go('plant')">+ Plant a seed</button>
       <p class="sub">Everyone in our CG can water these. Nicknames only.</p>` +
-      seeds.map((s, i) => { const st = stage(s), fr = fruitOf(s);
-        const done = MILESTONES.filter((m) => s.milestones[m.key]).map((m) => m.icon).join(" ");
+      db.seeds.map((s) => { const sg = stage(s), fr = fruitOf(s), done = MILESTONES.filter((x) => s.milestones[x.key]).map((x) => x.icon).join(" ");
         return `
-        <button class="card item" onclick="go('seed', seeds[${i}])">
-          <div class="badge">${fr ? fr.fruit : st.icon}</div>
-          <div><p class="big" style="font-size:16px">${esc(s.nick)}</p>
-          <p class="sub">${fr ? "Bore fruit · " + fr.name : st.label} · ${ringText(st.rings)} · ${s.waters} prayer${s.waters === 1 ? "" : "s"}</p>
-          <p class="sub" style="font-size:13px">Growing ${timeGrowing(s)} · planted by ${esc(s.by)}${done ? " · " + done : ""}</p></div>
+        <button class="card item" onclick="go('seed', ${s.id})">
+          <div class="badge">${fr ? fr.fruit : sg.icon}</div>
+          <div style="flex:1"><p class="big" style="font-size:16px">${esc(s.nick)}</p>
+          <p class="sub">${fr ? "Bore fruit · " + fr.name : sg.label}</p>
+          <p class="sub" style="font-size:13px">🟤 ${plural(sg.rings, "ring")} · 💧 ${plural(s.waters, "prayer")} · 💬 ${(s.notes || []).length}${done ? " · " + done : ""}</p></div>
         </button>`; }).join("");
   }
 
   if (screen === "seed") {
-    const s = current, st = stage(s), fr = fruitOf(s);
-    const plantArt = fr
-      ? `<span class="plant ${justWatered || celebrate ? "grow" : ""}" style="font-size:${Math.max(120, st.size)}px">${fr.tree}</span>
-         <span class="fruit" style="left:38%;top:30px">${fr.fruit}</span>
-         <span class="fruit" style="left:56%;top:52px">${fr.fruit}</span>
-         <span class="fruit" style="left:44%;top:78px">${fr.fruit}</span>`
-      : `<span class="plant ${justWatered || celebrate ? "grow" : ""}" style="font-size:${st.size}px">${st.icon}</span>`;
+    const s = seedById(currentId), sg = stage(s), fr = fruitOf(s), planter = person(s.by), anim = justWatered || celebrate ? "grow" : "";
+    const art = fr
+      ? `<span class="plant ${anim}" style="font-size:${Math.max(120, sg.size)}px">${fr.tree}</span>
+         <span class="fruit" style="left:38%;top:30px">${fr.fruit}</span><span class="fruit" style="left:56%;top:52px">${fr.fruit}</span><span class="fruit" style="left:44%;top:78px">${fr.fruit}</span>`
+      : `<span class="plant ${anim}" style="font-size:${sg.size}px">${sg.icon}</span>`;
     app.innerHTML = `
       <div class="card" style="align-items:center;text-align:center">
-        <div class="pot">
-          ${justWatered ? `<span class="drop">💧</span>` : ""}
-          ${plantArt}
-        </div>
+        <div class="pot">${justWatered ? `<span class="drop">💧</span>` : ""}${art}</div>
         <p class="big" style="font-size:24px">${esc(s.nick)}</p>
-        <p class="sub">${fr ? "Bore fruit after " + monthText(fr.months) + " · " + an(fr.name) : st.label} · 🟤 ${ringText(st.rings)}</p>
-        <p class="sub">Growing ${timeGrowing(s)} · ${s.waters} prayers · planted by ${esc(s.by)}</p>
-        <div class="journey">${MILESTONES.map((m) => `<span class="${s.milestones[m.key] ? "done" : ""}">${m.icon}</span>`).join("")}</div></div>
+        <p class="sub">${fr ? "Bore fruit after " + monthText(fr.months) + " · " + an(fr.name) : sg.label} · 🟤 ${plural(sg.rings, "ring")}</p>
+        <p class="sub" style="font-size:14px">Growing ${timeGrowing(s)} · 💧 ${plural(s.waters, "prayer")} · planted by ${esc(planter.name)}</p>
+        <div class="journey">${MILESTONES.map((x) => `<span class="${s.milestones[x.key] ? "done" : ""}">${x.icon}</span>`).join("")}</div></div>
       ${celebrate ? `<div class="levelup">${celebrate}</div>` : ""}
       <button class="btn blue" onclick="water()">💧 I prayed — water it</button>
       ${justWatered && !celebrate ? `<p class="sub" style="text-align:center;color:var(--blue);font-weight:700">Thank you for praying for ${esc(s.nick)}!</p>` : ""}
-      <div class="card"><p class="label">Milestones</p>
-        <p class="sub" style="font-size:14px">Log each milestone when it happens, in any order. Every milestone adds a ring 🟤 to the tree. It’s okay to stay a seedling. Every seed grows in God’s time.</p>
-        ${MILESTONES.map((m) => { const d = s.milestones[m.key]; return `
-          <button class="milestone ${d ? "on" : ""}" onclick="toggleMilestone('${m.key}')">
-            <span style="font-size:22px">${m.icon}</span><span style="flex:1">${m.label}</span>
-            <span class="sub" style="font-size:13px">${d ? "🟤 " + shortDate(d) : "Log it"}</span>
-          </button>`; }).join("")}
+      <div class="card"><p class="label">Prayers for ${esc(s.nick)}</p>
+        <div class="field"><label for="pm" style="font-size:14px">Leave a prayer</label>
+          <textarea id="pm" maxlength="280" placeholder="e.g. Lord, give ${esc(s.nick)} peace this week." oninput="setDraft('note', this.value)">${esc(draft.note || "")}</textarea></div>
+        <button class="btn blue" onclick="postNote()">Post prayer & water 💧</button>
+        <p class="sub" style="font-size:12px">Keep it short and kind. Don’t include personal details about your friend.</p>
+        ${(s.notes || []).slice().reverse().map((n) => { const p = person(n.by); return `
+          <div class="msg">${avatar(p, 36)}<div class="bubble"><small>${esc(p.name)} · ${shortDate(n.at)}</small>${esc(n.text)}</div></div>`; }).join("")}
       </div>
-      <div class="card"><p class="label">Last outing</p><p class="big" style="font-size:16px">${esc(s.outing)}</p></div>`;
+      <div class="card"><p class="label">Milestones</p>
+        <p class="sub" style="font-size:14px">Log each milestone when it happens, in any order. Every milestone adds a ring 🟤. It’s okay to stay a seedling. Every seed grows in God’s time.</p>
+        ${MILESTONES.map((x) => { const d = s.milestones[x.key]; return `
+          <button class="milestone ${d ? "on" : ""}" onclick="toggleMilestone('${x.key}')">
+            <span style="font-size:22px">${x.icon}</span><span style="flex:1">${x.label}</span>
+            <span class="sub" style="font-size:13px">${d ? "🟤 " + shortDate(d) : "Log it"}</span></button>`; }).join("")}
+      </div>
+      <div class="card"><p class="label">Last outing</p><p class="big" style="font-size:16px">${esc(s.outing)}</p>
+        <button class="btn outline" onclick="planWith(${s.id})">Plan an outing with ${esc(s.nick)}</button></div>`;
   }
 
   if (screen === "plant") {
     app.innerHTML = `
       <p class="sub">Plant a seed for a friend you’re reaching out to. Use a nickname or initials only, never their full name.</p>
-      <label for="nick"><b>Friend’s nickname</b></label><input id="nick" placeholder="e.g. Friend M">
-      <label for="outing"><b>Outing (optional)</b></label><input id="outing" placeholder="e.g. Lunch after service">
+      <div class="field"><label for="nick">Friend’s nickname</label><input id="nick" placeholder="e.g. Friend M"></div>
+      <div class="field"><label for="outing">Outing (optional)</label><input id="outing" placeholder="e.g. Lunch after service"></div>
       <button class="btn" onclick="plant()">Plant seed</button>`;
   }
 
-  // Undo bar: shows after any seed action until you undo or move to another screen
   if (undoStack.length) app.innerHTML += `<div class="toast"><span>${undoStack[undoStack.length - 1].label}</span><button onclick="undo()">Undo</button></div>`;
 }
 
-// ---- Undo: remember how things were just before an action ----
-function snapshot(label) {
-  return { label: label, seeds: JSON.stringify(seeds), prayers: JSON.stringify(myPrayers), id: current && current.id };
+function avatarPicker() {
+  return `
+    <div class="field"><label>Pick an avatar</label>
+      <div class="pick">${AVATARS.map((a) => `<button class="${draft.avatar === a ? "on" : ""}" onclick="pickDraft('avatar','${a}')" aria-label="Avatar ${a}">${a}</button>`).join("")}</div></div>
+    <div class="field"><label>Pick a colour</label>
+      <div class="pick colors">${COLORS.map((c) => `<button class="${draft.color === c ? "on" : ""}" style="background:${c}" onclick="pickDraft('color','${c}')" aria-label="Colour ${c}"></button>`).join("")}</div></div>`;
 }
-function undo() {
-  const undoInfo = undoStack.pop();
-  if (!undoInfo) return;
-  seeds = JSON.parse(undoInfo.seeds);
-  myPrayers = JSON.parse(undoInfo.prayers);
-  save();
-  try { localStorage.setItem("cg-my-prayers", JSON.stringify(myPrayers)); } catch (e) {}
-  if (screen === "seed") current = seeds.find((x) => x.id === undoInfo.id);
-  celebrate = ""; justWatered = false;
-  buzz(false); render();
+function timeGrowing(s) {
+  const d = Math.floor((Date.now() - new Date(s.plantedAt)) / DAY);
+  if (d < 14) return plural(d, "day");
+  if (d < 60) return plural(Math.floor(d / 7), "week");
+  return plural(Math.round(d / 30.44), "month");
 }
 
-function rsvp(choice) {
-  const e = current;
-  if (e.mine === "yes") e.going--;
-  e.mine = choice;
-  if (choice === "yes") e.going++;
-  render();
+// ================= ACTIONS =================
+function buzz(big) { if (tg && tg.HapticFeedback) big ? tg.HapticFeedback.notificationOccurred("success") : tg.HapticFeedback.impactOccurred("light"); }
+const snapshot = (label) => ({ label: label, data: JSON.stringify(db) });
+function undo() {
+  const u = undoStack.pop(); if (!u) return;
+  db = JSON.parse(u.data); save();
+  if (screen === "seed" && !seedById(currentId)) { go("seeds"); return; }
+  celebrate = ""; justWatered = false; buzz(false); render();
 }
-function buzz(big) {
-  // A little buzz on the phone (works inside Telegram)
-  if (tg && tg.HapticFeedback) big ? tg.HapticFeedback.notificationOccurred("success") : tg.HapticFeedback.impactOccurred("light");
+
+function addPrayer(s) {
+  const before = earned();
+  s.waters++; db.prayers.count++;
+  if (!db.prayers.days.includes(todayKey())) db.prayers.days.push(todayKey());
+  if (!db.prayers.seeds.includes(s.id)) db.prayers.seeds.push(s.id);
+  return BADGES.filter((b) => earned().includes(b.name) && !before.includes(b.name)).map((b) => "🏅 New badge: " + b.icon + " " + b.name + "!").join("<br>");
 }
 function water() {
-  const snap = snapshot("Prayer logged for " + esc(current.nick));
-  const before = earned();
-  current.waters++;
-  myPrayers.count++;
-  if (!myPrayers.days.includes(todayKey())) myPrayers.days.push(todayKey());
-  if (!myPrayers.seeds.includes(current.id)) myPrayers.seeds.push(current.id);
-  try { localStorage.setItem("cg-my-prayers", JSON.stringify(myPrayers)); } catch (e) {}
-  const fresh = BADGES.filter((b) => earned().includes(b.name) && !before.includes(b.name));
-  celebrate = fresh.map((b) => "🏅 New badge: " + b.icon + " " + b.name + "!").join("<br>");
-  justWatered = true; undoStack.push(snap);
+  const s = seedById(currentId), snap = snapshot("Prayer logged for " + esc(s.nick));
+  celebrate = addPrayer(s); justWatered = true; undoStack.push(snap);
   save(); buzz(!!celebrate); render();
 }
+function postNote() {
+  const s = seedById(currentId), text = (draft.note || "").trim();
+  if (!text) return alert("Write a short prayer first.");
+  const snap = snapshot("Prayer posted for " + esc(s.nick));
+  s.notes = s.notes || [];
+  s.notes.push({ by: "me", text: text.slice(0, 280), at: new Date().toISOString() });
+  draft.note = "";
+  celebrate = addPrayer(s); justWatered = true; undoStack.push(snap);
+  save(); buzz(true); render();
+}
 function toggleMilestone(key) {
-  const s = current;
-  const m0 = MILESTONES.find((x) => x.key === key);
-  const snap = snapshot((s.milestones[key] ? "Removed: " : "Logged: ") + m0.label);
-  if (s.milestones[key]) {
-    delete s.milestones[key];
-    celebrate = "";
-  } else {
+  const s = seedById(currentId), m = MILESTONES.find((x) => x.key === key);
+  const snap = snapshot((s.milestones[key] ? "Removed: " : "Logged: ") + m.label);
+  if (s.milestones[key]) { delete s.milestones[key]; celebrate = ""; }
+  else {
     const kindBefore = kindOf(s);
     s.milestones[key] = new Date().toISOString();
-    const m = MILESTONES.find((x) => x.key === key), kindNow = kindOf(s);
-    const fr = key === "saved" ? fruitOf(s) : null;
+    const kindNow = kindOf(s), fr = key === "saved" ? fruitOf(s) : null;
     celebrate = fr
       ? "🟤 New ring, and " + esc(s.nick) + " has borne fruit! " + fr.fruit + " " + an(fr.name).replace(/^a/, "A") + " after " + monthText(fr.months) + "."
-      : "🟤 New ring! " + m.icon + " " + esc(s.nick) + ": " + m.label + ". Praise God!" +
-        (kindNow !== kindBefore ? "<br>It’s growing into " + an(kindNow.name) + "!" : "");
+      : "🟤 New ring! " + m.icon + " " + esc(s.nick) + ": " + m.label + ". Praise God!" + (kindNow !== kindBefore ? "<br>It’s growing into " + an(kindNow.name) + "!" : "");
   }
   justWatered = false; undoStack.push(snap);
   save(); buzz(!!celebrate); render();
@@ -383,15 +488,50 @@ function plant() {
   if (!nick) return alert("Please enter a nickname first.");
   const outing = document.getElementById("outing").value.trim() || "No outing logged yet";
   const snap = snapshot("Planted " + esc(nick));
-  seeds.unshift({ id: Date.now(), nick, by: me, outing, waters: 0, plantedAt: new Date().toISOString(), milestones: {} });
-  save();
-  go("seeds");
-  undoStack.push(snap); render();
+  db.seeds.unshift({ id: Date.now(), nick: nick, by: "me", outing: outing, waters: 0, plantedAt: new Date().toISOString(), milestones: {}, notes: [] });
+  save(); go("seeds"); undoStack.push(snap); render();
+}
+function planWith(seedId) { go("newevent"); draft.friend = String(seedId); draft.title = "Outing with " + seedById(seedId).nick; render(); }
+
+function rsvp(yes) {
+  const e = db.events.find((x) => x.id === currentId);
+  e.going = e.going.filter((id) => id !== "me");
+  if (yes) e.going.push("me");
+  if (!e.invited.includes("me")) e.invited.push("me");
+  save(); buzz(yes); render();
+}
+function saveEvent() {
+  if (!draft.title.trim()) return alert("Give your outing a name first.");
+  if (!draft.date) return alert("Pick a date.");
+  const e = { id: Date.now(), type: draft.type, title: draft.title.trim(), date: draft.date, time: draft.time, place: draft.place.trim(),
+              by: "me", invited: draft.invited.includes("me") ? draft.invited : ["me"].concat(draft.invited), going: ["me"], friend: draft.friend ? Number(draft.friend) : null };
+  db.events.push(e); save();
+  go("event", e.id);
+  celebrate = ""; buzz(true);
+  if (confirm("Outing created! Send the invite on Telegram now?")) shareEvent(e.id);
+}
+function shareEvent(id) {
+  const e = db.events.find((x) => x.id === id);
+  const text = (e.type === "cg" ? "🙏 " : "🎉 ") + "You’re invited: " + e.title + "\n📅 " + fmtDate(e.date) + ", " + fmtTime(e.time) +
+               (e.place ? "\n📍 " + e.place : "") + "\nRSVP in our CG Hub 👇";
+  const link = "https://t.me/share/url?url=" + encodeURIComponent(BOT_LINK) + "&text=" + encodeURIComponent(text);
+  if (tg && tg.openTelegramLink && tg.initData) tg.openTelegramLink(link); else window.open(link, "_blank");
+}
+function saveProfile() {
+  if (!draft.name.trim()) return alert("Please enter your name.");
+  db.profile = { name: draft.name.trim(), avatar: draft.avatar, color: draft.color };
+  save(); buzz(true); go("home");
+}
+function saveMember() {
+  if (!draft.name.trim()) return alert("Please enter a name.");
+  db.members.push({ id: "m" + Date.now(), name: draft.name.trim(), role: draft.role.trim(), avatar: draft.avatar, color: draft.color });
+  save(); buzz(true); go("cg");
 }
 
-document.getElementById("back").onclick = () => go({ event: "events", seed: "seeds", plant: "seeds" }[screen]);
+document.getElementById("back").onclick = () => go(backTo[screen]);
+document.getElementById("me-btn").onclick = () => go("profile");
 document.querySelectorAll("nav button").forEach((b) => b.onclick = () => go(b.dataset.tab));
-if (tg) tg.ready();
+if (tg) { tg.ready(); tg.expand(); }
 render();
 </script>
 </body>

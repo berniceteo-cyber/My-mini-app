@@ -49,6 +49,21 @@
   @keyframes drop { from { transform: translate(-50%, -30px); opacity: 1; } to { transform: translate(-50%, 90px); opacity: 0; } }
   .levelup { background: #FFF4D6; color: #7A4B00; border-radius: 14px; padding: 12px; text-align: center; font-weight: 800; font-size: 17px; animation: pop .6s ease; }
   @keyframes pop { 0% { transform: scale(.5); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+  .fruit { position: absolute; font-size: 30px; animation: pop .6s ease; }
+  .milestone { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 8px 12px;
+               border: 1px solid var(--line); border-radius: 12px; background: #fff; font: inherit; font-size: 15px;
+               font-weight: 700; color: var(--ink); text-align: left; cursor: pointer; }
+  .milestone.on { background: #FFF4D6; border-color: #F2C76B; }
+  .badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .bdg { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 8px 4px;
+         border-radius: 12px; background: #F1F2EE; opacity: .45; }
+  .bdg span { font-size: 26px; } .bdg b { font-size: 11px; } .bdg small { font-size: 10px; color: var(--muted); }
+  .bdg.on { opacity: 1; background: #FFF4D6; }
+  .toast { position: fixed; left: 12px; right: 12px; bottom: 84px; background: #1E2A22; color: #fff; border-radius: 14px;
+           padding: 10px 10px 10px 16px; display: flex; align-items: center; gap: 12px; font-size: 15px; animation: pop .3s ease; }
+  .toast span { flex: 1; }
+  .toast button { min-height: 44px; padding: 0 16px; border: none; border-radius: 10px; background: #F2C76B; color: #1E2A22;
+                  font-size: 15px; font-weight: 800; cursor: pointer; }
   .journey { display: flex; justify-content: space-between; width: 100%; font-size: 26px; }
   .journey span { opacity: .25; }
   .journey span.done { opacity: 1; }
@@ -82,43 +97,111 @@ const members = [
   { name: "Member A", role: "CG Leader" }, { name: "Member B", role: "Asst. Leader" },
   { name: "Member C" }, { name: "Member D" }, { name: "Member E" }, { name: "Member F" }
 ];
+const DAY = 86400000;
+const daysAgo = (d) => new Date(Date.now() - d * DAY).toISOString();
 let seeds = [
-  { id: 1, nick: "Friend J", by: "Member B", outing: "Coffee catch-up", waters: 1 },
-  { id: 2, nick: "Friend K", by: "Member A", outing: "Badminton", waters: 8 },
-  { id: 3, nick: "Friend L", by: "Member D", outing: "Birthday dinner", waters: 19 }
+  { id: 1, nick: "Friend J", by: "Member B", outing: "Coffee catch-up", waters: 1,
+    plantedAt: daysAgo(14), milestones: {} },
+  { id: 2, nick: "Friend K", by: "Member A", outing: "Badminton", waters: 22,
+    plantedAt: daysAgo(150), milestones: { metcg: daysAgo(100), church: daysAgo(40) } },
+  { id: 3, nick: "Friend L", by: "Member D", outing: "Birthday dinner", waters: 41,
+    plantedAt: daysAgo(430), milestones: { metcg: daysAgo(380), church: daysAgo(300), saved: daysAgo(30), fp: daysAgo(10) } }
 ];
 // Remember seeds on this phone (until we add a shared database)
-try { const saved = JSON.parse(localStorage.getItem("cg-seeds")); if (saved) seeds = saved; } catch (e) {}
-function save() { try { localStorage.setItem("cg-seeds", JSON.stringify(seeds)); } catch (e) {} }
+try { const saved = JSON.parse(localStorage.getItem("cg-seeds-v2")); if (saved) seeds = saved; } catch (e) {}
+function save() { try { localStorage.setItem("cg-seeds-v2", JSON.stringify(seeds)); } catch (e) {} }
+
+// Moments of impact: can be ticked in any order
+const MILESTONES = [
+  { key: "metcg",   icon: "🤝", label: "Met the CG" },
+  { key: "church",  icon: "⛪", label: "Stepped into church" },
+  { key: "saved",   icon: "✝️", label: "Salvation" },
+  { key: "planted", icon: "🏡", label: "Planted in church" },
+  { key: "fp",      icon: "📖", label: "Started FP" }
+];
+
+// What a seed grows into is NOT decided at planting.
+// It's decided only as milestones happen, by the pace of the journey:
+// average months per milestone (change "pace" to adjust).
+// Each kind has its own look at every ring; fruit appears at Salvation.
+const KINDS = [
+  { pace: 1,        fruit: "🍓", name: "strawberry plant", looks: ["🌱", "🌿", "☘️", "🌼", "🌼", "🌼"] },
+  { pace: 3,        fruit: "🍊", name: "orange tree",      looks: ["🌱", "🌿", "🪴", "🌳", "🌳", "🌳"] },
+  { pace: Infinity, fruit: "🥥", name: "coconut palm",     looks: ["🌱", "🌿", "🪴", "🌴", "🌴", "🌴"] }
+];
+const an = (w) => (/^[aeiou]/i.test(w) ? "an " : "a ") + w;
+const monthsBetween = (a, b) => (new Date(b) - new Date(a)) / (30.44 * DAY);
+function kindOf(s) {
+  const dates = Object.values(s.milestones);
+  if (!dates.length) return null;                      // no milestones yet: still a mystery
+  const latest = dates.reduce((x, y) => (new Date(x) > new Date(y) ? x : y));
+  const pace = monthsBetween(s.plantedAt, latest) / dates.length;
+  return KINDS.find((k) => pace <= k.pace);
+}
+function fruitOf(s) {
+  if (!s.milestones.saved) return null;
+  const m = monthsBetween(s.plantedAt, s.milestones.saved);
+  return Object.assign({ months: Math.max(0, Math.round(m)), tree: kindOf(s).looks[5] }, kindOf(s));
+}
+function timeGrowing(s) {
+  const d = Math.floor((Date.now() - new Date(s.plantedAt)) / DAY);
+  if (d < 14) return d + (d === 1 ? " day" : " days");
+  if (d < 60) return Math.floor(d / 7) + " weeks";
+  return Math.round(d / 30.44) + " months";
+}
+const monthText = (n) => n < 1 ? "under a month" : n + " month" + (n === 1 ? "" : "s");
+const shortDate = (iso) => new Date(iso).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" });
 
 // ---- App state ----
-let screen = "home", current = null, justWatered = false, leveledUp = false;
+let screen = "home", current = null, justWatered = false, celebrate = "", undoStack = [];
 const tg = window.Telegram && Telegram.WebApp;
 const me = (tg && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) || "friend";
 
 // Stops typed text from being treated as code
 const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 
-// The growth journey: change "at" to make plants grow faster or slower
+// Growth comes from milestones: each milestone you log adds a ring.
+// Watering never counts down to anything; it earns prayer badges instead.
 const STAGES = [
-  { at: 0,  icon: "🌰", label: "Planted" },
-  { at: 3,  icon: "🌱", label: "Sprouted" },
-  { at: 7,  icon: "🌿", label: "Growing" },
-  { at: 12, icon: "🪴", label: "Flourishing" },
-  { at: 18, icon: "🌸", label: "Blooming" }
+  { icon: "🌱", label: "Seedling" },
+  { icon: "🌿", label: "Growing" },
+  { icon: "🪴", label: "Taking root" },
+  { icon: "🌳", label: "Strong tree" },
+  { icon: "🌳", label: "Deeply rooted" }
 ];
-function stage(w) {
-  let i = 0;
-  STAGES.forEach((s, k) => { if (w >= s.at) i = k; });
-  const st = STAGES[i], nx = STAGES[i + 1];
+function stage(s) {
+  const rings = MILESTONES.filter((m) => s.milestones[m.key]).length;
+  const i = Math.min(rings, STAGES.length - 1), kind = kindOf(s);
   return {
-    icon: st.icon, label: st.label, level: i, size: 56 + i * 16,
-    next: nx ? (nx.at - w) + " more prayer" + (nx.at - w === 1 ? "" : "s") + " until it’s " + nx.label.toLowerCase() : "Fully blooming. God gave the increase!",
-    pct: nx ? Math.round((w - st.at) / (nx.at - st.at) * 100) : 100
+    icon: kind ? kind.looks[i] : "🌱", rings: rings, kind: kind, size: Math.min(140, 64 + rings * 16),
+    label: STAGES[i].label + (kind ? " · becoming " + an(kind.name) : " · what will it become?")
   };
 }
+const ringText = (n) => n + " ring" + (n === 1 ? "" : "s");
 
-function go(to, item) { screen = to; current = item || null; justWatered = false; leveledUp = false; render(); window.scrollTo(0, 0); }
+// ---- Prayer badges (earned by watering; saved on this phone) ----
+let myPrayers = { count: 0, days: [], seeds: [] };
+try { const p = JSON.parse(localStorage.getItem("cg-my-prayers")); if (p) myPrayers = p; } catch (e) {}
+const todayKey = (d) => (d || new Date()).toISOString().slice(0, 10);
+function streak() {
+  let n = 0, d = new Date();
+  if (!myPrayers.days.includes(todayKey(d))) d = new Date(Date.now() - DAY);
+  while (myPrayers.days.includes(todayKey(d))) { n++; d = new Date(d - DAY); }
+  return n;
+}
+const BADGES = [
+  { icon: "💧", name: "First Drop",      how: "Pray for a friend",          got: (p) => p.count >= 1 },
+  { icon: "🌦️", name: "Spring Shower",   how: "Pray 10 times",              got: (p) => p.count >= 10 },
+  { icon: "🌧️", name: "Rain of Prayer",  how: "Pray 25 times",              got: (p) => p.count >= 25 },
+  { icon: "🌊", name: "River of Prayer", how: "Pray 50 times",              got: (p) => p.count >= 50 },
+  { icon: "🏆", name: "Prayer Warrior",  how: "Pray 100 times",             got: (p) => p.count >= 100 },
+  { icon: "🔥", name: "On Fire",         how: "Pray 3 days in a row",       got: () => streak() >= 3 },
+  { icon: "⭐", name: "Faithful Week",   how: "Pray 7 days in a row",       got: () => streak() >= 7 },
+  { icon: "🤲", name: "Big Heart",       how: "Pray for 3 different friends", got: (p) => p.seeds.length >= 3 }
+];
+const earned = () => BADGES.filter((b) => b.got(myPrayers)).map((b) => b.name);
+
+function go(to, item) { screen = to; current = item || null; justWatered = false; celebrate = ""; undoStack = []; render(); window.scrollTo(0, 0); }
 
 function render() {
   const app = document.getElementById("app");
@@ -141,6 +224,10 @@ function render() {
           <div class="stat" style="background:var(--blue-soft)"><b style="color:var(--blue)">${total}</b>times watered</div>
         </div>
         <button class="btn outline" onclick="go('seeds')">Water a seed</button></div>
+      <div class="card"><p class="label">My prayer badges</p>
+        <p class="sub">You’ve prayed ${myPrayers.count} time${myPrayers.count === 1 ? "" : "s"}${streak() > 1 ? " · 🔥 " + streak() + "-day streak" : ""}</p>
+        <div class="badges">${BADGES.map((b) => { const has = b.got(myPrayers); return `
+          <div class="bdg ${has ? "on" : ""}"><span>${b.icon}</span><b>${b.name}</b><small>${has ? "Earned" : b.how}</small></div>`; }).join("")}</div></div>
       <div class="verse">“I have planted, Apollos watered; but God gave the increase.”<br><b style="font-style:normal">1 Corinthians 3:6</b></div>`;
   }
 
@@ -176,29 +263,46 @@ function render() {
   if (screen === "seeds") {
     app.innerHTML = `<button class="btn" onclick="go('plant')">+ Plant a seed</button>
       <p class="sub">Everyone in our CG can water these. Nicknames only.</p>` +
-      seeds.map((s, i) => { const st = stage(s.waters); return `
+      seeds.map((s, i) => { const st = stage(s), fr = fruitOf(s);
+        const done = MILESTONES.filter((m) => s.milestones[m.key]).map((m) => m.icon).join(" ");
+        return `
         <button class="card item" onclick="go('seed', seeds[${i}])">
-          <div class="badge">${st.icon}</div>
-          <div><p class="big" style="font-size:16px">${esc(s.nick)}</p><p class="sub">${st.label} · watered ${s.waters} times</p>
-          <p class="sub" style="font-size:13px">Planted by ${esc(s.by)}</p></div>
+          <div class="badge">${fr ? fr.fruit : st.icon}</div>
+          <div><p class="big" style="font-size:16px">${esc(s.nick)}</p>
+          <p class="sub">${fr ? "Bore fruit · " + fr.name : st.label} · ${ringText(st.rings)} · ${s.waters} prayer${s.waters === 1 ? "" : "s"}</p>
+          <p class="sub" style="font-size:13px">Growing ${timeGrowing(s)} · planted by ${esc(s.by)}${done ? " · " + done : ""}</p></div>
         </button>`; }).join("");
   }
 
   if (screen === "seed") {
-    const s = current, st = stage(s.waters);
+    const s = current, st = stage(s), fr = fruitOf(s);
+    const plantArt = fr
+      ? `<span class="plant ${justWatered || celebrate ? "grow" : ""}" style="font-size:${Math.max(120, st.size)}px">${fr.tree}</span>
+         <span class="fruit" style="left:38%;top:30px">${fr.fruit}</span>
+         <span class="fruit" style="left:56%;top:52px">${fr.fruit}</span>
+         <span class="fruit" style="left:44%;top:78px">${fr.fruit}</span>`
+      : `<span class="plant ${justWatered || celebrate ? "grow" : ""}" style="font-size:${st.size}px">${st.icon}</span>`;
     app.innerHTML = `
       <div class="card" style="align-items:center;text-align:center">
         <div class="pot">
           ${justWatered ? `<span class="drop">💧</span>` : ""}
-          <span class="plant ${justWatered ? "grow" : ""}" style="font-size:${st.size}px">${st.icon}</span>
+          ${plantArt}
         </div>
         <p class="big" style="font-size:24px">${esc(s.nick)}</p>
-        <p class="sub">${st.label} · watered ${s.waters} times · planted by ${esc(s.by)}</p>
-        <div class="journey">${STAGES.map((x, k) => `<span class="${k <= st.level ? "done" : ""}">${x.icon}</span>`).join("")}</div>
-        <div class="bar" style="width:100%"><div style="width:${st.pct}%"></div></div><p class="sub">${st.next}</p></div>
-      ${leveledUp ? `<div class="levelup">🎉 ${esc(s.nick)} is now ${st.label.toLowerCase()}!</div>` : ""}
+        <p class="sub">${fr ? "Bore fruit after " + monthText(fr.months) + " · " + an(fr.name) : st.label} · 🟤 ${ringText(st.rings)}</p>
+        <p class="sub">Growing ${timeGrowing(s)} · ${s.waters} prayers · planted by ${esc(s.by)}</p>
+        <div class="journey">${MILESTONES.map((m) => `<span class="${s.milestones[m.key] ? "done" : ""}">${m.icon}</span>`).join("")}</div></div>
+      ${celebrate ? `<div class="levelup">${celebrate}</div>` : ""}
       <button class="btn blue" onclick="water()">💧 I prayed — water it</button>
-      ${justWatered && !leveledUp ? `<p class="sub" style="text-align:center;color:var(--blue);font-weight:700">Thank you for praying for ${esc(s.nick)}!</p>` : ""}
+      ${justWatered && !celebrate ? `<p class="sub" style="text-align:center;color:var(--blue);font-weight:700">Thank you for praying for ${esc(s.nick)}!</p>` : ""}
+      <div class="card"><p class="label">Milestones</p>
+        <p class="sub" style="font-size:14px">Log each milestone when it happens, in any order. Every milestone adds a ring 🟤 to the tree. It’s okay to stay a seedling. Every seed grows in God’s time.</p>
+        ${MILESTONES.map((m) => { const d = s.milestones[m.key]; return `
+          <button class="milestone ${d ? "on" : ""}" onclick="toggleMilestone('${m.key}')">
+            <span style="font-size:22px">${m.icon}</span><span style="flex:1">${m.label}</span>
+            <span class="sub" style="font-size:13px">${d ? "🟤 " + shortDate(d) : "Log it"}</span>
+          </button>`; }).join("")}
+      </div>
       <div class="card"><p class="label">Last outing</p><p class="big" style="font-size:16px">${esc(s.outing)}</p></div>`;
   }
 
@@ -209,6 +313,25 @@ function render() {
       <label for="outing"><b>Outing (optional)</b></label><input id="outing" placeholder="e.g. Lunch after service">
       <button class="btn" onclick="plant()">Plant seed</button>`;
   }
+
+  // Undo bar: shows after any seed action until you undo or move to another screen
+  if (undoStack.length) app.innerHTML += `<div class="toast"><span>${undoStack[undoStack.length - 1].label}</span><button onclick="undo()">Undo</button></div>`;
+}
+
+// ---- Undo: remember how things were just before an action ----
+function snapshot(label) {
+  return { label: label, seeds: JSON.stringify(seeds), prayers: JSON.stringify(myPrayers), id: current && current.id };
+}
+function undo() {
+  const undoInfo = undoStack.pop();
+  if (!undoInfo) return;
+  seeds = JSON.parse(undoInfo.seeds);
+  myPrayers = JSON.parse(undoInfo.prayers);
+  save();
+  try { localStorage.setItem("cg-my-prayers", JSON.stringify(myPrayers)); } catch (e) {}
+  if (screen === "seed") current = seeds.find((x) => x.id === undoInfo.id);
+  celebrate = ""; justWatered = false;
+  buzz(false); render();
 }
 
 function rsvp(choice) {
@@ -218,25 +341,52 @@ function rsvp(choice) {
   if (choice === "yes") e.going++;
   render();
 }
-function water() {
-  const before = stage(current.waters).level;
-  current.waters++;
-  leveledUp = stage(current.waters).level > before;
-  justWatered = true;
-  save();
+function buzz(big) {
   // A little buzz on the phone (works inside Telegram)
-  if (tg && tg.HapticFeedback) {
-    leveledUp ? tg.HapticFeedback.notificationOccurred("success") : tg.HapticFeedback.impactOccurred("light");
+  if (tg && tg.HapticFeedback) big ? tg.HapticFeedback.notificationOccurred("success") : tg.HapticFeedback.impactOccurred("light");
+}
+function water() {
+  const snap = snapshot("Prayer logged for " + esc(current.nick));
+  const before = earned();
+  current.waters++;
+  myPrayers.count++;
+  if (!myPrayers.days.includes(todayKey())) myPrayers.days.push(todayKey());
+  if (!myPrayers.seeds.includes(current.id)) myPrayers.seeds.push(current.id);
+  try { localStorage.setItem("cg-my-prayers", JSON.stringify(myPrayers)); } catch (e) {}
+  const fresh = BADGES.filter((b) => earned().includes(b.name) && !before.includes(b.name));
+  celebrate = fresh.map((b) => "🏅 New badge: " + b.icon + " " + b.name + "!").join("<br>");
+  justWatered = true; undoStack.push(snap);
+  save(); buzz(!!celebrate); render();
+}
+function toggleMilestone(key) {
+  const s = current;
+  const m0 = MILESTONES.find((x) => x.key === key);
+  const snap = snapshot((s.milestones[key] ? "Removed: " : "Logged: ") + m0.label);
+  if (s.milestones[key]) {
+    delete s.milestones[key];
+    celebrate = "";
+  } else {
+    const kindBefore = kindOf(s);
+    s.milestones[key] = new Date().toISOString();
+    const m = MILESTONES.find((x) => x.key === key), kindNow = kindOf(s);
+    const fr = key === "saved" ? fruitOf(s) : null;
+    celebrate = fr
+      ? "🟤 New ring, and " + esc(s.nick) + " has borne fruit! " + fr.fruit + " " + an(fr.name).replace(/^a/, "A") + " after " + monthText(fr.months) + "."
+      : "🟤 New ring! " + m.icon + " " + esc(s.nick) + ": " + m.label + ". Praise God!" +
+        (kindNow !== kindBefore ? "<br>It’s growing into " + an(kindNow.name) + "!" : "");
   }
-  render();
+  justWatered = false; undoStack.push(snap);
+  save(); buzz(!!celebrate); render();
 }
 function plant() {
   const nick = document.getElementById("nick").value.trim();
   if (!nick) return alert("Please enter a nickname first.");
   const outing = document.getElementById("outing").value.trim() || "No outing logged yet";
-  seeds.unshift({ id: Date.now(), nick, by: me, outing, waters: 0 });
+  const snap = snapshot("Planted " + esc(nick));
+  seeds.unshift({ id: Date.now(), nick, by: me, outing, waters: 0, plantedAt: new Date().toISOString(), milestones: {} });
   save();
   go("seeds");
+  undoStack.push(snap); render();
 }
 
 document.getElementById("back").onclick = () => go({ event: "events", seed: "seeds", plant: "seeds" }[screen]);

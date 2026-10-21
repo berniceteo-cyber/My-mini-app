@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CG Hub</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --green: #2E7D4F; --green-dark: #1F5C39; --green-soft: #EEF5EF;
+    --blue: #2563A8; --blue-soft: #EAF1F9;
+    --ink: #1E2A22; --muted: #56635A; --line: #E2E6DE;
+    --bg: #F6F7F2; --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font-family: -apple-system, "Segoe UI", system-ui, sans-serif; }
+  header { position: sticky; top: 0; background: var(--card); border-bottom: 1px solid var(--line);
+           height: 60px; display: flex; align-items: center; gap: 8px; padding: 0 12px; }
+  header h1 { margin: 0; font-size: 20px; }
+  .back { width: 44px; height: 44px; border: none; background: none; font-size: 26px; cursor: pointer; }
+  main { padding: 16px 16px 100px; display: flex; flex-direction: column; gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px;
+          display: flex; flex-direction: column; gap: 8px; }
+  .label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 0; }
+  .big { font-size: 18px; font-weight: 800; margin: 0; }
+  .sub { font-size: 15px; color: var(--muted); margin: 0; }
+  .btn { height: 50px; border-radius: 12px; border: none; background: var(--green); color: #fff;
+         font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; }
+  .btn.outline { background: #fff; color: var(--green); border: 2px solid var(--green); }
+  .btn.blue { background: var(--blue); }
+  .btn.dashed { background: none; color: var(--muted); border: 2px dashed #B9C3B6; }
+  .row { display: flex; gap: 12px; }
+  .stat { flex: 1; border-radius: 12px; padding: 12px; }
+  .stat b { display: block; font-size: 26px; }
+  .item { text-align: left; width: 100%; font: inherit; color: inherit; cursor: pointer;
+          display: flex; gap: 14px; align-items: center; }
+  .badge { width: 52px; height: 52px; flex-shrink: 0; border-radius: 12px; background: var(--green-soft);
+           display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--green-dark); font-weight: 800; }
+  .verse { background: #E9EFE6; border-radius: 16px; padding: 16px; font-style: italic; line-height: 1.45; }
+  .bar { height: 12px; border-radius: 6px; background: var(--line); overflow: hidden; }
+  .bar div { height: 100%; background: var(--blue); }
+  .pot { position: relative; height: 170px; width: 100%; display: flex; align-items: flex-end; justify-content: center;
+         background: linear-gradient(to top, #C9A882 0 22px, transparent 22px); border-radius: 12px; overflow: hidden; }
+  .plant { display: inline-block; line-height: 1; margin-bottom: 14px; transform-origin: bottom center; transition: font-size .5s ease; }
+  .grow { animation: grow .7s ease; }
+  @keyframes grow { 0% { transform: scale(1); } 40% { transform: scale(1.3) rotate(-6deg); } 70% { transform: scale(.95) rotate(3deg); } 100% { transform: scale(1); } }
+  .drop { position: absolute; left: 50%; top: 0; font-size: 34px; animation: drop .6s ease-in forwards; }
+  @keyframes drop { from { transform: translate(-50%, -30px); opacity: 1; } to { transform: translate(-50%, 90px); opacity: 0; } }
+  .levelup { background: #FFF4D6; color: #7A4B00; border-radius: 14px; padding: 12px; text-align: center; font-weight: 800; font-size: 17px; animation: pop .6s ease; }
+  @keyframes pop { 0% { transform: scale(.5); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+  .journey { display: flex; justify-content: space-between; width: 100%; font-size: 26px; }
+  .journey span { opacity: .25; }
+  .journey span.done { opacity: 1; }
+  input { height: 48px; border-radius: 12px; border: 1px solid #B9C3B6; padding: 0 14px; font-size: 16px; width: 100%; }
+  nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: var(--card);
+        border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); }
+  nav button { border: none; background: none; font-size: 12px; font-weight: 700; color: #5F6B63; cursor: pointer;
+               display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  nav button span { font-size: 22px; }
+  nav button.active { color: var(--green); }
+</style>
+</head>
+<body>
+<header><button class="back" id="back" aria-label="Back" hidden>‹</button><h1 id="title">CG Hub</h1></header>
+<main id="app"></main>
+<nav>
+  <button data-tab="home"><span>🏠</span>Home</button>
+  <button data-tab="events"><span>📅</span>Events</button>
+  <button data-tab="cg"><span>👥</span>Our CG</button>
+  <button data-tab="seeds"><span>🌱</span>Seeds</button>
+</nav>
+
+<script>
+// ---- Sample data (fake names only — real data comes later from a database) ----
+const events = [
+  { id: 1, title: "CG Night: Worship & Word", date: "Fri 30 Oct", time: "8:00 PM", place: "[Venue]", going: 6, mine: null },
+  { id: 2, title: "Seeds Outing: Lunch", date: "Sun 1 Nov", time: "12:30 PM", place: "[Venue]", going: 4, mine: null },
+  { id: 3, title: "Prayer Walk", date: "Wed 4 Nov", time: "7:30 PM", place: "[Venue]", going: 3, mine: null }
+];
+const members = [
+  { name: "Member A", role: "CG Leader" }, { name: "Member B", role: "Asst. Leader" },
+  { name: "Member C" }, { name: "Member D" }, { name: "Member E" }, { name: "Member F" }
+];
+let seeds = [
+  { id: 1, nick: "Friend J", by: "Member B", outing: "Coffee catch-up", waters: 1 },
+  { id: 2, nick: "Friend K", by: "Member A", outing: "Badminton", waters: 8 },
+  { id: 3, nick: "Friend L", by: "Member D", outing: "Birthday dinner", waters: 19 }
+];
+// Remember seeds on this phone (until we add a shared database)
+try { const saved = JSON.parse(localStorage.getItem("cg-seeds")); if (saved) seeds = saved; } catch (e) {}
+function save() { try { localStorage.setItem("cg-seeds", JSON.stringify(seeds)); } catch (e) {} }
+
+// ---- App state ----
+let screen = "home", current = null, justWatered = false, leveledUp = false;
+const tg = window.Telegram && Telegram.WebApp;
+const me = (tg && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) || "friend";
+
+// Stops typed text from being treated as code
+const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+// The growth journey: change "at" to make plants grow faster or slower
+const STAGES = [
+  { at: 0,  icon: "🌰", label: "Planted" },
+  { at: 3,  icon: "🌱", label: "Sprouted" },
+  { at: 7,  icon: "🌿", label: "Growing" },
+  { at: 12, icon: "🪴", label: "Flourishing" },
+  { at: 18, icon: "🌸", label: "Blooming" }
+];
+function stage(w) {
+  let i = 0;
+  STAGES.forEach((s, k) => { if (w >= s.at) i = k; });
+  const st = STAGES[i], nx = STAGES[i + 1];
+  return {
+    icon: st.icon, label: st.label, level: i, size: 56 + i * 16,
+    next: nx ? (nx.at - w) + " more prayer" + (nx.at - w === 1 ? "" : "s") + " until it’s " + nx.label.toLowerCase() : "Fully blooming. God gave the increase!",
+    pct: nx ? Math.round((w - st.at) / (nx.at - st.at) * 100) : 100
+  };
+}
+
+function go(to, item) { screen = to; current = item || null; justWatered = false; leveledUp = false; render(); window.scrollTo(0, 0); }
+
+function render() {
+  const app = document.getElementById("app");
+  const titles = { home: "CG Hub", events: "Events", event: "Event", cg: "Our CG", seeds: "Seeds", seed: "Seed", plant: "Plant a seed" };
+  document.getElementById("title").textContent = titles[screen];
+  document.getElementById("back").hidden = !["event", "seed", "plant"].includes(screen);
+  const tab = { event: "events", seed: "seeds", plant: "seeds" }[screen] || screen;
+  document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
+
+  if (screen === "home") {
+    const total = seeds.reduce((a, s) => a + s.waters, 0);
+    const e = events[0];
+    app.innerHTML = `
+      <div><p class="big" style="font-size:26px">Hi, ${esc(me)}!</p><p class="sub">Here’s what’s happening in our CG.</p></div>
+      <div class="card"><p class="label">Next up</p><p class="big">${e.title}</p><p class="sub">${e.date} · ${e.time}</p>
+        <button class="btn" onclick="go('event', events[0])">View event</button></div>
+      <div class="card"><p class="label">Our seeds</p>
+        <div class="row">
+          <div class="stat" style="background:var(--green-soft)"><b style="color:var(--green-dark)">${seeds.length}</b>friends planted</div>
+          <div class="stat" style="background:var(--blue-soft)"><b style="color:var(--blue)">${total}</b>times watered</div>
+        </div>
+        <button class="btn outline" onclick="go('seeds')">Water a seed</button></div>
+      <div class="verse">“I have planted, Apollos watered; but God gave the increase.”<br><b style="font-style:normal">1 Corinthians 3:6</b></div>`;
+  }
+
+  if (screen === "events") {
+    app.innerHTML = `<button class="btn dashed">+ New event (leaders only)</button>` +
+      events.map((e, i) => `
+        <button class="card item" onclick="go('event', events[${i}])">
+          <div class="badge" style="font-size:14px">${e.date.split(" ")[1]}<br>${e.date.split(" ")[2]}</div>
+          <div><p class="big" style="font-size:16px">${e.title}</p><p class="sub">${e.date} · ${e.time}</p><p class="sub">${e.going} going</p></div>
+        </button>`).join("");
+  }
+
+  if (screen === "event") {
+    const e = current;
+    app.innerHTML = `
+      <div class="card"><p class="big" style="font-size:22px">${e.title}</p>
+        <p class="sub">📅 ${e.date} · ${e.time}</p><p class="sub">📍 ${e.place}</p><p class="sub">👥 ${e.going} going</p></div>
+      <p class="big" style="font-size:16px">Are you coming?</p>
+      <div class="row">
+        <button class="btn ${e.mine === "yes" ? "" : "outline"}" onclick="rsvp('yes')">I’m coming</button>
+        <button class="btn ${e.mine === "no" ? "" : "outline"}" style="${e.mine === "no" ? "background:var(--muted)" : "color:var(--muted);border-color:var(--muted)"}" onclick="rsvp('no')">Can’t make it</button>
+      </div>`;
+  }
+
+  if (screen === "cg") {
+    app.innerHTML = `<p class="sub">${members.length} members</p><div class="card">` +
+      members.map((m) => `
+        <div class="item"><div class="badge" style="width:44px;height:44px;border-radius:22px;font-size:18px">${m.name.slice(-1)}</div>
+        <span style="flex:1;font-weight:700">${m.name}</span>${m.role ? `<span class="sub" style="font-size:13px">${m.role}</span>` : ""}</div>`).join("") +
+      `</div><button class="btn dashed">+ Add member (leaders only)</button>`;
+  }
+
+  if (screen === "seeds") {
+    app.innerHTML = `<button class="btn" onclick="go('plant')">+ Plant a seed</button>
+      <p class="sub">Everyone in our CG can water these. Nicknames only.</p>` +
+      seeds.map((s, i) => { const st = stage(s.waters); return `
+        <button class="card item" onclick="go('seed', seeds[${i}])">
+          <div class="badge">${st.icon}</div>
+          <div><p class="big" style="font-size:16px">${esc(s.nick)}</p><p class="sub">${st.label} · watered ${s.waters} times</p>
+          <p class="sub" style="font-size:13px">Planted by ${esc(s.by)}</p></div>
+        </button>`; }).join("");
+  }
+
+  if (screen === "seed") {
+    const s = current, st = stage(s.waters);
+    app.innerHTML = `
+      <div class="card" style="align-items:center;text-align:center">
+        <div class="pot">
+          ${justWatered ? `<span class="drop">💧</span>` : ""}
+          <span class="plant ${justWatered ? "grow" : ""}" style="font-size:${st.size}px">${st.icon}</span>
+        </div>
+        <p class="big" style="font-size:24px">${esc(s.nick)}</p>
+        <p class="sub">${st.label} · watered ${s.waters} times · planted by ${esc(s.by)}</p>
+        <div class="journey">${STAGES.map((x, k) => `<span class="${k <= st.level ? "done" : ""}">${x.icon}</span>`).join("")}</div>
+        <div class="bar" style="width:100%"><div style="width:${st.pct}%"></div></div><p class="sub">${st.next}</p></div>
+      ${leveledUp ? `<div class="levelup">🎉 ${esc(s.nick)} is now ${st.label.toLowerCase()}!</div>` : ""}
+      <button class="btn blue" onclick="water()">💧 I prayed — water it</button>
+      ${justWatered && !leveledUp ? `<p class="sub" style="text-align:center;color:var(--blue);font-weight:700">Thank you for praying for ${esc(s.nick)}!</p>` : ""}
+      <div class="card"><p class="label">Last outing</p><p class="big" style="font-size:16px">${esc(s.outing)}</p></div>`;
+  }
+
+  if (screen === "plant") {
+    app.innerHTML = `
+      <p class="sub">Plant a seed for a friend you’re reaching out to. Use a nickname or initials only, never their full name.</p>
+      <label for="nick"><b>Friend’s nickname</b></label><input id="nick" placeholder="e.g. Friend M">
+      <label for="outing"><b>Outing (optional)</b></label><input id="outing" placeholder="e.g. Lunch after service">
+      <button class="btn" onclick="plant()">Plant seed</button>`;
+  }
+}
+
+function rsvp(choice) {
+  const e = current;
+  if (e.mine === "yes") e.going--;
+  e.mine = choice;
+  if (choice === "yes") e.going++;
+  render();
+}
+function water() {
+  const before = stage(current.waters).level;
+  current.waters++;
+  leveledUp = stage(current.waters).level > before;
+  justWatered = true;
+  save();
+  // A little buzz on the phone (works inside Telegram)
+  if (tg && tg.HapticFeedback) {
+    leveledUp ? tg.HapticFeedback.notificationOccurred("success") : tg.HapticFeedback.impactOccurred("light");
+  }
+  render();
+}
+function plant() {
+  const nick = document.getElementById("nick").value.trim();
+  if (!nick) return alert("Please enter a nickname first.");
+  const outing = document.getElementById("outing").value.trim() || "No outing logged yet";
+  seeds.unshift({ id: Date.now(), nick, by: me, outing, waters: 0 });
+  save();
+  go("seeds");
+}
+
+document.getElementById("back").onclick = () => go({ event: "events", seed: "seeds", plant: "seeds" }[screen]);
+document.querySelectorAll("nav button").forEach((b) => b.onclick = () => go(b.dataset.tab));
+if (tg) tg.ready();
+render();
+</script>
+</body>
+</html>

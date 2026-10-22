@@ -228,6 +228,7 @@ const todayKey = () => localDay(Date.now());
 const dayFromNow = (n) => localDay(Date.now() + n * DAY);
 const esc = (t) => String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const an = (w) => (/^[aeiou]/i.test(w) ? "an " : "a ") + w;
+const andList = (xs) => xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " & " + xs[xs.length - 1];
 const plural = (n, w) => n + " " + w + (n === 1 ? "" : "s");
 const monthsBetween = (a, b) => (new Date(b) - new Date(a)) / (30.44 * DAY);
 const monthText = (n) => n < 1 ? "under a month" : plural(n, "month");
@@ -331,7 +332,8 @@ async function refresh() {
   }));
   events = d.events.map((e) => ({
     id: e.id, type: e.type, title: e.title, date: e.date, time: e.time, place: e.place, by: String(e.created_by),
-    invited: (e.invited || []).map(String), friend: e.friend_seed, inviteOnly: !!e.invite_only,
+    invited: (e.invited || []).map(String), inviteOnly: !!e.invite_only,
+    friends: (d.eventFriends || []).filter((f) => f.event_id === e.id).map((f) => ({ seed: f.seed_id, by: String(f.added_by) })),
     going: d.rsvps.filter((r) => r.event_id === e.id).map((r) => String(r.member_id))
   }));
   allPrayers = d.prayers.map((p) => ({ seed: p.seed_id, by: String(p.by_member), at: p.created_at }));
@@ -350,6 +352,7 @@ const seedById = (id) => seeds.find((s) => s.id === Number(id));
 const eventById = (id) => events.find((e) => e.id === Number(id));
 // Invite-only outings: everyone can see and pray for them; only invited people RSVP
 const canRsvp = (e) => !e.inviteOnly || e.invited.includes(me().id);
+const canBring = (e) => e.date >= todayKey() && (!e.inviteOnly || e.invited.includes(me().id) || me().leader);
 const canAddPhotos = (e) => e.date <= todayKey() && (!e.inviteOnly || e.invited.includes(me().id) || me().leader);
 
 // ================= SEED LOGIC =================
@@ -450,13 +453,14 @@ function celebrateBig(emoji, title, sub, bits, verse) {
 function closePopup() { popup = null; render(); }
 
 // ================= APP STATE =================
-let uploading = null, viewer = null;
+let uploading = null, viewer = null, bringOpen = false, picked = [];
 let screen = "home", currentId = null, justWatered = false, celebrate = "", undoStack = [], draft = {}, busy = false;
 const backTo = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", profile: "world" };
 const titles = { home: "CG Hub", events: "Events & Outings", event: "Event", newevent: "Plan an outing", cg: "Our CG",
                  seeds: "Seeds", seed: "Seed", plant: "Plant a seed", profile: "My avatar", world: "Our Garden World" };
 
 function go(to, id) {
+  bringOpen = false; picked = [];
   screen = to; currentId = id == null ? null : id; justWatered = false; celebrate = ""; undoStack = [];
   if (to === "profile") {
     const m = me();
@@ -464,14 +468,19 @@ function go(to, id) {
     draft = { name: m.name, avatar: m.avatar === "🌻" ? randomAv() : m.avatar, color: m.color };
   }
   if (to === "event") draft = {};
-  if (to === "newevent") draft = { inviteOnly: false, type: "outing", title: "", date: dayFromNow(7), time: "19:00", place: "", invited: [me().id], friend: "" };
+  if (to === "newevent") draft = { inviteOnly: false, type: "outing", title: "", date: dayFromNow(7), time: "19:00", place: "", invited: [me().id], friends: [] };
   if (to === "seed" || to === "plant") draft = {};
   render(); window.scrollTo(0, 0);
 }
 function setDraft(k, v) { draft[k] = v; }
 function pickDraft(k, v) { draft[k] = v; render(); }
 function setAv(field, v) { const c = parseAv(draft.avatar) || parseAv(randomAv()); c[field] = v; draft.avatar = encAv(c); buzz(false); render(); }
-function toggleInvite(id) { draft.invited = draft.invited.includes(id) ? draft.invited.filter((x) => x !== id) : draft.invited.concat(id); render(); }
+function toggleFriendDraft(id) { draft.friends = draft.friends.includes(id) ? draft.friends.filter((x) => x !== id) : draft.friends.concat(id); render(); }
+function togglePicked(id) { picked = picked.includes(id) ? picked.filter((x) => x !== id) : picked.concat(id); render(); }
+function openBring() { bringOpen = !bringOpen; picked = []; render(); }
+function toggleInvite(id) {
+  const ed = draft.editId && eventById(draft.editId);
+  if (ed && id === ed.by) return alert("The planner always stays invited."); draft.invited = draft.invited.includes(id) ? draft.invited.filter((x) => x !== id) : draft.invited.concat(id); render(); }
 
 // Runs an action, reloads the shared data, and shows any error nicely
 async function run(fn) {
@@ -512,7 +521,7 @@ function render() {
     return;
   }
 
-  document.getElementById("title").textContent = titles[screen];
+  document.getElementById("title").textContent = screen === "newevent" && draft.editId ? "Edit outing" : titles[screen];
   document.getElementById("back").hidden = !backTo[screen] || (status === "pending");
   const tab = { event: "events", newevent: "events", seed: "seeds", plant: "seeds", profile: "world" }[screen] || screen;
   document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
@@ -590,7 +599,7 @@ function render() {
               ${x.going.includes(m.id) ? `<span class="chip" style="background:var(--gold-soft);color:#7A4B00">✓ Going</span>` : ""}</div>
             <p class="big" style="font-size:16px">${esc(x.title)}</p><p class="sub">${fmtDate(x.date)} · ${fmtTime(x.time)}</p>
             <div class="row" style="align-items:center"><div class="stack">${x.going.slice(0, 4).map((id) => avatar(person(id), 28)).join("")}</div>
-              <span class="sub" style="font-size:13px">${x.going.length} going · 🙏 ${allEventPrayers.filter((p) => p.event === x.id).length}</span></div>
+              <span class="sub" style="font-size:13px">${x.going.length} going${x.friends.length ? " · 🌱 " + x.friends.length : ""} · 🙏 ${allEventPrayers.filter((p) => p.event === x.id).length}</span></div>
           </div>
         </button>`).join("") : `<p class="sub">No upcoming events yet. Plan one!</p>`) +
       (past.length ? `<p class="label" style="margin-top:10px">📸 Outing memories</p>` + past.map((x) => { const pics = photos.filter((ph) => ph.event === x.id); return `
@@ -605,9 +614,11 @@ function render() {
   if (screen === "event") {
     const e = eventById(currentId);
     if (!e) { app.innerHTML = `<p class="sub">This event isn’t available anymore.</p>`; return; }
-    const mine = e.going.includes(m.id), host = person(e.by), fr = e.friend ? seedById(e.friend) : null;
+    const mine = e.going.includes(m.id), host = person(e.by);
+    const fl = e.friends.map((f) => ({ s: seedById(f.seed), by: f.by })).filter((f) => f.s);
+    const notYet = seeds.filter((x) => !e.friends.some((f) => f.seed === x.id));
     const past = e.date < todayKey(), happened = e.date <= todayKey(), can = canRsvp(e);
-    const canCancel = (e.by === m.id || m.leader) && !past, canInvite = !past && (!e.inviteOnly || e.by === m.id || e.invited.includes(m.id));
+    const canEdit = e.by === m.id || m.leader, canCancel = canEdit && !past, canInvite = !past && (!e.inviteOnly || e.by === m.id || e.invited.includes(m.id));
     const prs = allEventPrayers.filter((x) => x.event === e.id), prayedBy = [...new Set(prs.map((x) => x.by))];
     const pics = photos.filter((x) => x.event === e.id);
     app.innerHTML = `
@@ -619,7 +630,8 @@ function render() {
         <p class="sub">📅 ${fmtDate(e.date)} · ${fmtTime(e.time)}</p>
         <p class="sub">📍 ${esc(e.place || "Place to be confirmed")}</p>
         <div class="row" style="align-items:center">${avatar(host, 28)}<span class="sub" style="font-size:14px">Planned by ${esc(host.name)}</span></div>
-        ${fr ? `<p class="sub">🌱 Bringing a friend: <b>${esc(fr.nick)}</b></p>` : ""}
+        ${fl.length ? `<p class="sub">🌱 Bringing ${fl.map((f) => "<b>" + esc(f.s.nick) + "</b>").join(", ")}</p>` : ""}
+        ${canEdit ? `<button class="btn outline" style="min-height:44px" onclick="editEvent(${e.id})">✏️ Edit details</button>` : ""}
       </div>
       ${celebrate ? `<div class="levelup">${celebrate}</div>` : ""}
       ${past ? "" : can ? `
@@ -631,7 +643,7 @@ function render() {
         <div class="card" style="background:#F1F2EE"><p class="big" style="font-size:16px">🔒 Invite-only outing</p>
           <p class="sub">This one’s for the invited group, so there’s no need to RSVP. You can still pray for it! 🙏</p></div>`}
       <div class="card"><p class="label">🙏 Pray for this outing</p>
-        <p class="sub">${prs.length ? plural(prs.length, "prayer") + " so far." : "Be the first to pray for it."}${fr ? " Pray especially for " + esc(fr.nick) + "!" : ""}</p>
+        <p class="sub">${prs.length ? plural(prs.length, "prayer") + " so far." : "Be the first to pray for it."}${fl.length ? " Pray especially for " + andList(fl.map((f) => esc(f.s.nick))) + "!" : ""}</p>
         ${prayedBy.length ? `<div class="row" style="align-items:center"><div class="stack">${prayedBy.slice(0, 6).map((id) => avatar(person(id), 30)).join("")}</div><span class="sub" style="font-size:13px">${prayedBy.length === 1 ? "1 person" : prayedBy.length + " people"} prayed</span></div>` : ""}
         <button class="btn blue waterbtn" style="min-height:56px" onclick="prayForEvent(${e.id}, event)">🙏 I prayed for this outing</button></div>
       ${happened ? `<div class="card"><p class="label">📸 Memories · ${pics.length}</p>
@@ -643,6 +655,22 @@ function render() {
             <input type="file" accept="image/*" multiple style="display:none" onchange="uploadPhotos(this)"></label>
           <p class="sub" style="font-size:12px">Only share photos that everyone in them is happy to have shared.</p>`) : ""}
       </div>` : ""}
+      <div class="card"><p class="label">🌱 Friends ${past ? "who came" : "coming"} · ${fl.length}</p>
+        ${fl.length ? fl.map((f) => { const sg = stage(f.s), fruit = fruitOf(f.s), canRm = !past && (f.by === m.id || e.by === m.id || m.leader); return `
+          <div class="item"><div class="badge" style="width:44px;height:44px;font-size:22px">${fruit ? fruit.fruit : sg.icon}</div>
+            <button class="me-btn" style="flex:1;text-align:left;font:inherit;color:inherit" onclick="go('seed', ${f.s.id})"><p class="big" style="font-size:16px">${esc(f.s.nick)}</p>
+              <p class="sub" style="font-size:13px">Invited by ${esc(f.by === m.id ? "you" : person(f.by).name)}</p></button>
+            ${canRm ? `<button class="btn grey" style="width:auto;min-height:40px;padding:0 12px" onclick="removeFriend(${e.id}, ${f.s.id})" aria-label="Remove ${esc(f.s.nick)}">✕</button>` : ""}</div>`; }).join("")
+          : `<p class="sub">${past ? "No friends were added to this one." : "No friends added yet. Who could you bring along?"}</p>`}
+        ${canBring(e) ? (bringOpen ? `
+          <p class="sub" style="font-size:14px">Tap the friends you’re inviting:</p>
+          ${notYet.length ? `<div class="pick people">${notYet.map((x) => `<button class="${picked.includes(x.id) ? "on" : ""}" onclick="togglePicked(${x.id})">🌱 ${esc(x.nick)}</button>`).join("")}</div>
+          <div class="row"><button class="btn" onclick="bringFriends(${e.id})">${picked.length ? "Add " + plural(picked.length, "friend") : "Pick a friend"}</button>
+            <button class="btn grey" style="flex:0 0 auto;width:auto" onclick="openBring()">Close</button></div>`
+          : `<p class="sub">Everyone in our garden is already on this outing! Plant a new seed to add someone else.</p>`}
+          <button class="btn dashed" onclick="go('plant')">+ Plant a new seed first</button>`
+        : `<button class="btn outline" onclick="openBring()">🌱 Bring a friend</button>`) : ""}
+      </div>
       <div class="card"><p class="label">${past ? "Went" : "Going"} · ${e.going.length}</p>
         <div class="pick">${e.going.length ? e.going.map((id) => avatar(person(id), 40)).join("") : `<span class="sub">${past ? "No one RSVP’d" : "Be the first!"}</span>`}</div>
         <p class="label">Invited · ${e.invited.length}</p>
@@ -667,10 +695,11 @@ function render() {
         <div class="seg"><button class="${draft.inviteOnly ? "" : "on"}" onclick="pickDraft('inviteOnly', false)">🌍 Whole CG</button>
           <button class="${draft.inviteOnly ? "on" : ""}" onclick="pickDraft('inviteOnly', true)">🔒 Invite only</button></div>
         <p class="sub" style="font-size:13px">${draft.inviteOnly ? "Everyone can see it and pray for it, but only the people you invite can RSVP." : "Anyone in the CG can RSVP."}</p></div>
-      <div class="field"><label for="fr">Bringing a friend? (optional)</label>
-        <select id="fr" onchange="setDraft('friend', this.value)"><option value="">No one this time</option>
-        ${seeds.map((s) => `<option value="${s.id}" ${String(draft.friend) === String(s.id) ? "selected" : ""}>🌱 ${esc(s.nick)}</option>`).join("")}</select></div>
-      <button class="btn" onclick="saveEvent()">Create & invite</button>`;
+      ${draft.editId ? `<p class="sub" style="font-size:13px">🌱 To add or remove friends, use <b>Bring a friend</b> on the outing page.</p>` : `
+      <div class="field"><label>Bringing friends? (optional, pick as many as you like)</label>
+        ${seeds.length ? `<div class="pick people">${seeds.map((x) => `<button class="${draft.friends.includes(x.id) ? "on" : ""}" onclick="toggleFriendDraft(${x.id})">🌱 ${esc(x.nick)}</button>`).join("")}</div>`
+          : `<p class="sub" style="font-size:13px">Plant a seed first to bring a friend.</p>`}</div>`}
+      <button class="btn" style="min-height:56px" onclick="saveEvent()">${draft.editId ? "Save changes ✓" : "Create & invite"}</button>`;
   }
 
   if (screen === "cg") {
@@ -803,8 +832,19 @@ function render() {
             <span style="font-size:22px">${x.icon}</span><span style="flex:1">${x.label}</span>
             <span class="sub" style="font-size:13px">${d ? "🟤 " + shortDate(d) : "Log it"}</span></button>`; }).join("")}
       </div>
-      <div class="card"><p class="label">Last outing</p><p class="big" style="font-size:16px">${esc(s.outing)}</p>
-        <button class="btn outline" onclick="planWith(${s.id})">Plan an outing with ${esc(s.nick)}</button></div>`;
+      ${(() => { const withThem = upcoming.filter((x) => x.friends.some((f) => f.seed === s.id)), could = upcoming.filter((x) => canBring(x) && !x.friends.some((f) => f.seed === s.id)); return `
+      <div class="card"><p class="label">📅 Outings with ${esc(s.nick)}</p>
+        ${withThem.length ? withThem.map((x) => `<button class="item me-btn" style="font:inherit;color:inherit;text-align:left" onclick="go('event', ${x.id})">
+            <div class="tile" style="width:44px;height:48px"><small>${fmtDate(x.date).split(" ")[2].toUpperCase()}</small><span>${fmtDate(x.date).split(" ")[1]}</span></div>
+            <div style="flex:1"><p class="big" style="font-size:15px">${esc(x.title)}</p><p class="sub" style="font-size:13px">${fmtDate(x.date)} · ${fmtTime(x.time)}</p></div></button>`).join("")
+          : `<p class="sub">Last outing: ${esc(s.outing)}</p>`}
+        ${bringOpen ? (could.length ? `<p class="sub" style="font-size:14px">Bring ${esc(s.nick)} to:</p>` + could.map((x) => `
+            <button class="btn outline" style="text-align:left" onclick="bringSeedTo(${x.id}, ${s.id})">➕ ${esc(x.title)} · ${fmtDate(x.date)}</button>`).join("") +
+            `<button class="btn grey" onclick="openBring()">Close</button>`
+          : `<p class="sub">There are no upcoming outings you can bring ${esc(s.nick)} to yet.</p><button class="btn grey" onclick="openBring()">Close</button>`)
+          : `<div class="row"><button class="btn outline" onclick="openBring()">➕ Bring to an outing</button>
+             <button class="btn" onclick="planWith(${s.id})">📅 Plan a new one</button></div>`}
+      </div>`; })()}`;
   }
 
   if (screen === "plant") {
@@ -910,7 +950,24 @@ function plant() {
     setTimeout(() => celebrateBig("🌱", "Seed planted for " + esc(nick) + "!", "What will it grow into? Water it with prayer and see.", ["🌱", "💧", "✨"]), 50);
   });
 }
-function planWith(seedId) { go("newevent"); draft.friend = String(seedId); draft.title = "Outing with " + seedById(seedId).nick; render(); }
+function planWith(seedId) { go("newevent"); draft.friends = [seedId]; draft.title = "Outing with " + seedById(seedId).nick; render(); }
+function bringFriends(eventId) {
+  if (!picked.length) return alert("Tap a friend to add them first.");
+  const names = picked.map((id) => seedById(id).nick), ids = picked.slice();
+  run(async () => { await api("addFriends", { event_id: eventId, seed_ids: ids }); bringOpen = false; picked = []; })
+    .then(() => { confetti(["🌱", "💛", "🎉"]); buzz(true);
+      celebrate = "🌱 " + andList(names.map(esc)) + (names.length > 1 ? " are" : " is") + " on the list! Keep praying for them 🙏"; render(); });
+}
+function bringSeedTo(eventId, seedId) {
+  const e = eventById(eventId), nick = seedById(seedId).nick;
+  run(async () => { await api("addFriends", { event_id: eventId, seed_ids: [seedId] }); bringOpen = false; })
+    .then(() => { confetti(["🌱", "💛", "🎉"]); buzz(true); celebrate = "🌱 " + esc(nick) + " is invited to " + esc(e.title) + "!"; render();
+      if (confirm("Want to send " + nick + " an invite on Telegram?")) shareEvent(eventId); });
+}
+function removeFriend(eventId, seedId) {
+  if (!confirm("Remove " + seedById(seedId).nick + " from this outing?")) return;
+  run(async () => { await api("removeFriend", { event_id: eventId, seed_id: seedId }); });
+}
 
 // ----- praying for outings (feels instant, saves in the background) -----
 const OUTING_CHEERS = ["🙏 Prayed! May it be a blessed time.", "🙏 Covering this outing in prayer!", "🙏 Amen! Praying for open hearts.", "🙏 Thank you for praying!"];
@@ -971,12 +1028,33 @@ function deletePhoto(id) {
 
 function rsvp(yes) { const e = eventById(currentId); run(async () => { await api("rsvp", { event_id: e.id, going: yes }); buzz(yes); }); }
 function rsvpHome(id) { run(async () => { await api("rsvp", { event_id: id, going: true }); }).then(() => { confetti(["🙋", "🎉", "💛", "📅"]); buzz(true); }); }
+function editEvent(id) {
+  const e = eventById(id); if (!e) return;
+  go("newevent");
+  draft = { editId: e.id, inviteOnly: e.inviteOnly, type: e.type, title: e.title, date: e.date, time: e.time, place: e.place,
+            invited: e.invited.slice() };
+  render();
+}
 function saveEvent() {
   if (!draft.title.trim()) return alert("Give your outing a name first.");
   if (!draft.date) return alert("Pick a date.");
+  if (draft.editId) {
+    const id = draft.editId, before = eventById(id), when = before.date + before.time + before.place;
+    const changed = when !== draft.date + draft.time + draft.place.trim();
+    run(async () => {
+      await api("updateEvent", { id: id, type: draft.type, title: draft.title, date: draft.date, time: draft.time, place: draft.place,
+                                 invited: draft.invited.map(Number), invite_only: !!draft.inviteOnly });
+      screen = "event"; currentId = id; draft = {}; buzz(true);
+    }).then(() => {
+      const e = eventById(id);
+      if (e && changed && e.date >= todayKey() && confirm("Saved! The date, time or place changed. Let everyone know on Telegram?"))
+        shareLink("📢 Update: " + e.title + "\n📅 " + fmtDate(e.date) + ", " + fmtTime(e.time) + (e.place ? "\n📍 " + e.place : "") + "\nDetails in CG Hub 👇");
+    });
+    return;
+  }
   run(async () => {
     const r = await api("createEvent", { type: draft.type, title: draft.title, date: draft.date, time: draft.time, place: draft.place,
-                                         invited: draft.invited.map(Number), friend_seed: draft.friend ? Number(draft.friend) : null, invite_only: !!draft.inviteOnly });
+                                         invited: draft.invited.map(Number), friend_seeds: draft.friends || [], invite_only: !!draft.inviteOnly });
     screen = "event"; currentId = r.id; buzz(true);
   }).then(() => { if (screen === "event" && confirm("Outing created! Send the invite on Telegram now?")) shareEvent(currentId); });
 }
@@ -1021,7 +1099,7 @@ function quietRefresh() {
 document.addEventListener("visibilitychange", () => { if (!document.hidden) quietRefresh(); });
 setInterval(quietRefresh, 60000);
 
-document.getElementById("back").onclick = () => go(backTo[screen]);
+document.getElementById("back").onclick = () => (screen === "newevent" && draft.editId ? go("event", draft.editId) : go(backTo[screen]));
 document.getElementById("me-btn").onclick = () => { if (meRow) go("profile"); };
 document.querySelectorAll("nav button").forEach((b) => b.onclick = () => go(b.dataset.tab));
 if (tg) { tg.ready(); tg.expand(); }

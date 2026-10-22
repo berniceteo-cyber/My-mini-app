@@ -462,6 +462,22 @@ function celebrateBig(emoji, title, sub, bits, verse) {
 }
 function closePopup() { popup = null; render(); }
 
+// ================= TELEGRAM NOTIFICATIONS (opt-in) =================
+const notifyOn = () => !!(meRow && meRow.notify);
+const askedNotify = () => { try { return !!localStorage.getItem("cg-asked-notify"); } catch (e) { return true; } };
+function setNotify(on) {
+  const save = () => run(async () => {
+    await api("saveNotify", { on: on });
+    try { localStorage.setItem("cg-asked-notify", "1"); } catch (e) {}
+  }).then(() => { if (on) { confetti(["🔔", "💛", "✨"]); buzz(true); } });
+  // Telegram asks the person to allow @BEGROWINGbot to message them
+  if (on && tg && tg.requestWriteAccess) {
+    try { tg.requestWriteAccess((ok) => { if (ok) save(); else alert("No problem! You can turn notifications on any time from your avatar page."); }); return; } catch (e) {}
+  }
+  save();
+}
+function dismissNotifyCard() { try { localStorage.setItem("cg-asked-notify", "1"); } catch (e) {} render(); }
+
 // ================= APP STATE =================
 let uploading = null, viewer = null, bringOpen = false, picked = [];
 let screen = "home", currentId = null, justWatered = false, celebrate = "", undoStack = [], draft = {}, busy = false;
@@ -556,6 +572,11 @@ function render() {
           <p style="font-size:14px;font-weight:700">${streakMsg}</p>
         </div>
       </div>
+      ${!notifyOn() && !askedNotify() ? `<div class="card" style="background:var(--blue-soft);border-color:#C9DCF1">
+        <p class="big" style="font-size:16px">🔔 Get a Telegram message when…</p>
+        <p class="sub" style="font-size:14px">someone prays for a friend you planted or your outing, brings a friend along, or invites you to an outing.</p>
+        <div class="row"><button class="btn blue" onclick="setNotify(true)">Turn on</button>
+          <button class="btn grey" style="flex:0 0 auto;width:auto" onclick="dismissNotifyCard()">Not now</button></div></div>` : ""}
       ${e ? (() => { const going = e.going.includes(m.id); return `<div class="card" style="${going ? "" : "border:2px solid var(--green);"}">
         <p class="label">📅 Next up${going ? "" : " · are you coming?"}</p>
         <div class="item"><div class="tile"><small>${fmtDate(e.date).split(" ")[2].toUpperCase()}</small><span>${fmtDate(e.date).split(" ")[1]}</span></div>
@@ -748,7 +769,11 @@ function render() {
           <div class="pick">${AVATARS.map((x) => `<button class="${draft.avatar === x ? "on" : ""}" onclick="pickDraft('avatar','${x}')" aria-label="Avatar ${x}">${x}</button>`).join("")}</div></div>`}
       <div class="field"><label>${c ? "Outfit colour" : "Background colour"}</label>
         <div class="pick colors">${COLORS.map((x) => `<button class="${draft.color === x ? "on" : ""}" style="background:${x}" onclick="pickDraft('color','${x}')" aria-label="Colour ${x}"></button>`).join("")}</div></div>
-      <button class="btn" style="min-height:56px" onclick="saveProfile()">Save my avatar ✨</button>`;
+      <button class="btn" style="min-height:56px" onclick="saveProfile()">Save my avatar ✨</button>
+      <div class="card"><div class="row" style="align-items:center">
+        <div style="flex:1"><p class="big" style="font-size:16px">🔔 Telegram notifications</p>
+          <p class="sub" style="font-size:13px">${notifyOn() ? "On. Messages between 10pm and 8am arrive silently." : "Off. Turn on to hear when someone prays for your friends or invites you."}</p></div>
+        <button class="btn ${notifyOn() ? "grey" : "blue"}" style="width:auto;min-height:44px" onclick="setNotify(${!notifyOn()})">${notifyOn() ? "Turn off" : "Turn on"}</button></div></div>`;
   }
 
   if (screen === "world") {
@@ -1098,6 +1123,14 @@ let loadError = "";
 async function start() {
   if (!tg || !tg.initData) { status = "outside"; render(); return; }
   try { await refresh(); } catch (e) { status = "error"; loadError = e.message; }
+  // Opened from a notification button? Go straight to that seed or outing.
+  const open = new URLSearchParams(location.search).get("open") || "";
+  const [kind, oid] = open.split("-");
+  if (status === "approved") {
+    if (kind === "seed" && seedById(oid)) { screen = "seed"; currentId = Number(oid); }
+    else if (kind === "event" && eventById(oid)) { screen = "event"; currentId = Number(oid); }
+    else if (kind === "cg") screen = "cg";
+  }
   render();
 }
 // Quietly pick up other members' changes when you come back to the app, and every minute

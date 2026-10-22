@@ -206,7 +206,7 @@ const MILESTONES = [
   { key: "church",  icon: "⛪", label: "Stepped into church" },
   { key: "saved",   icon: "✝️", label: "Salvation" },
   { key: "planted", icon: "🏡", label: "Planted in church" },
-  { key: "fp",      icon: "📖", label: "Started FP" }
+  { key: "fp",      icon: "📖", label: "Started NS (Next Steps)" }
 ];
 const STAGES = ["Seedling", "Growing", "Taking root", "Strong tree", "Deeply rooted"];
 const KINDS = [
@@ -830,7 +830,7 @@ function render() {
           <div class="badge">${fr ? fr.fruit : sg.icon}</div>
           <div style="flex:1"><p class="big" style="font-size:16px">${esc(s.nick)}</p>
           <p class="sub">${fr ? "Bore fruit · " + fr.name : sg.label}</p>
-          <p class="sub" style="font-size:13px">🟤 ${plural(sg.rings, "ring")} · 💧 ${plural(s.waters, "prayer")} · 💬 ${s.notes.length}${done ? " · " + done : ""}</p></div>
+          <p class="sub" style="font-size:13px">👣 ${plural(sg.rings, "step")} of faith · 💧 ${plural(s.waters, "prayer")} · 💬 ${s.notes.length}${done ? " · " + done : ""}</p></div>
         </button>`; }).join("");
   }
 
@@ -846,7 +846,7 @@ function render() {
       <div class="card" style="align-items:center;text-align:center">
         <div class="pot">${justWatered ? `<span class="drop">💧</span>` : ""}${art}</div>
         <p class="big" style="font-size:24px">${esc(s.nick)}</p>
-        <p class="sub">${fr ? "Bore fruit after " + monthText(fr.months) + " · " + an(fr.name) : sg.label} · 🟤 ${plural(sg.rings, "ring")}</p>
+        <p class="sub">${fr ? "Bore fruit after " + monthText(fr.months) + " · " + an(fr.name) : sg.label} · 👣 ${plural(sg.rings, "step")} of faith</p>
         <p class="sub" style="font-size:14px">Growing ${timeGrowing(s)} · 💧 ${plural(s.waters, "prayer")} · planted by ${esc(planter.name)}</p>
         <div class="journey">${MILESTONES.map((x) => `<span class="${s.milestones[x.key] ? "done" : ""}">${x.icon}</span>`).join("")}</div></div>
       ${celebrate ? `<div class="levelup">${celebrate}</div>` : ""}
@@ -860,12 +860,12 @@ function render() {
         ${s.notes.slice().reverse().map((n) => { const p = person(n.by); return `
           <div class="msg">${avatar(p, 36)}<div class="bubble"><small>${esc(p.name)} · ${shortDate(n.at)}</small>${esc(n.text)}</div></div>`; }).join("")}
       </div>
-      <div class="card"><p class="label">Milestones</p>
-        <p class="sub" style="font-size:14px">Log each milestone when it happens, in any order. Every milestone adds a ring 🟤. It’s okay to stay a seedling. Every seed grows in God’s time.</p>
+      <div class="card"><p class="label">👣 Steps of faith</p>
+        <p class="sub" style="font-size:14px">Log each step of faith when it happens, in any order. Every step helps the plant grow 👣. It’s okay to stay a seedling. Every seed grows in God’s time.</p>
         ${MILESTONES.map((x) => { const d = s.milestones[x.key]; return `
           <button class="milestone ${d ? "on" : ""}" onclick="toggleMilestone('${x.key}')">
             <span style="font-size:22px">${x.icon}</span><span style="flex:1">${x.label}</span>
-            <span class="sub" style="font-size:13px">${d ? "🟤 " + shortDate(d) : "Log it"}</span></button>`; }).join("")}
+            <span class="sub" style="font-size:13px">${d ? "👣 " + shortDate(d) : "Log it"}</span></button>`; }).join("")}
       </div>
       ${(() => { const withThem = upcoming.filter((x) => x.friends.some((f) => f.seed === s.id)), could = upcoming.filter((x) => canBring(x) && !x.friends.some((f) => f.seed === s.id)); return `
       <div class="card"><p class="label">📅 Outings with ${esc(s.nick)}</p>
@@ -972,7 +972,7 @@ function toggleMilestone(key) {
     celebrate = "";
     if (fr) celebrateBig(fr.fruit, "🎉 Party in heaven!", esc(now.nick) + " has borne fruit: " + an(fr.name) + " after " + monthText(fr.months) + " of watering.", [fr.fruit, "🎉", "🥳", "✝️", "✨", "👼"],
       VERSE.party);
-    else celebrateBig(m.icon, esc(now.nick) + ": " + m.label + "!", "🟤 A new ring for the tree." + (kindNow && kindNow !== kindBefore ? " It’s growing into " + an(kindNow.name) + "! " + kindNow.fruit : ""), [m.icon, "🎉", "🌿", "✨"]);
+    else celebrateBig(m.icon, "God is moving in " + esc(now.nick) + "’s life! ✨", m.icon + " " + m.label + (kindNow && kindNow !== kindBefore ? ". " + esc(now.nick) + " is growing into " + an(kindNow.name) + "! " + kindNow.fruit : "."), [m.icon, "🎉", "🌿", "✨"]);
   });
 }
 function plant() {

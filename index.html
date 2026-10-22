@@ -182,6 +182,22 @@
 // ================= SETTINGS YOU CAN CHANGE =================
 const API_URL  = "https://ylojbxsdvoesdhwbjtfo.supabase.co/functions/v1/api";  // your Supabase security guard
 const BOT_LINK = "https://t.me/BEGROWINGbot";                                // link people get when you invite them
+// ---- Bible verses shown in the app ----
+// These use the WEB (World English Bible), which is free to use.
+// To switch to the NIV: replace each text below with the NIV wording, change BIBLE_VERSION to "NIV",
+// and paste the credit line from Biblica's permissions page into BIBLE_CREDIT.
+const BIBLE_VERSION = "WEB";
+const BIBLE_CREDIT  = "";
+const VERSE = {
+  garden: { ref: "1 Corinthians 3:6", text: "I planted. Apollos watered. But God gave the increase." },                                  // Seeds tab
+  party:  { ref: "Luke 15:10",        text: "Even so, I tell you, there is joy in the presence of the angels of God over one sinner repenting." }  // when someone is saved
+};
+const VERSES = [   // one of these appears at random in celebrations
+  { ref: "1 Thessalonians 5:17", text: "Pray without ceasing." },
+  { ref: "James 5:16",           text: "The insistent prayer of a righteous person is powerfully effective." },
+  { ref: "Galatians 6:9",        text: "Let’s not be weary in doing good, for we will reap in due season if we don’t give up." },
+  VERSE.garden
+];
 const AVATARS = ["🦁","🐻","🐼","🦊","🐨","🐯","🐸","🐧","🦉","🐳","🦋","🌻"];
 const COLORS  = ["#F2C76B","#9AD0A8","#9CC3EA","#F4A99B","#C9B6E8","#F7C59F"];
 
@@ -211,14 +227,8 @@ const BADGES = [
 ];
 BADGES.forEach((b) => { b.got = (p) => b.have(p) >= b.goal; });
 
-// Encouragement after praying (Bible verses: KJV)
+// Encouragement after praying
 const CHEERS = ["Every drop counts 💧", "Your prayer matters 🙏", "Keep sowing! 🌱", "God hears you 💛", "Faithful in the small things ✨", "The garden is growing 🌿"];
-const VERSES = [
-  ["Pray without ceasing.", "1 Thessalonians 5:17"],
-  ["The effectual fervent prayer of a righteous man availeth much.", "James 5:16"],
-  ["And let us not be weary in well doing: for in due season we shall reap, if we faint not.", "Galatians 6:9"],
-  ["I have planted, Apollos watered; but God gave the increase.", "1 Corinthians 3:6"]
-];
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 // ================= HELPERS =================
@@ -786,9 +796,9 @@ function render() {
 
   if (screen === "seeds") {
     app.innerHTML = `
-      <div class="verse">“I have planted, Apollos watered; but God gave the increase.”<b>1 Corinthians 3:6</b></div>
+      <div class="verse">“${esc(VERSE.garden.text)}”<b>${esc(VERSE.garden.ref)} (${esc(BIBLE_VERSION)})</b></div>
       <button class="btn" onclick="go('plant')">+ Plant a seed</button>
-      <p class="sub">Everyone in our CG can water these. Nicknames only.</p>` +
+      <p class="sub">Everyone in our CG can water these. Nicknames only.</p>` + (BIBLE_CREDIT ? `<p class="sub" style="font-size:11px;order:99">${esc(BIBLE_CREDIT)}</p>` : "") +
       seeds.map((s) => { const sg = stage(s), fr = fruitOf(s), done = MILESTONES.filter((x) => s.milestones[x.key]).map((x) => x.icon).join(" ");
         return `
         <button class="card item" onclick="go('seed', ${s.id})">
@@ -865,7 +875,7 @@ function render() {
       ${ph.by === m.id || m.leader ? `<button class="btn dashed" onclick="deletePhoto(${ph.id})">Remove photo</button>` : ""}</div></div>`; }
   if (popup) app.innerHTML += `<div class="overlay" onclick="if (event.target === this) closePopup()"><div class="box">
     <div class="bigemoji">${popup.emoji}</div><p class="title">${popup.title}</p>${popup.sub ? `<p class="sub">${popup.sub}</p>` : ""}
-    <p class="vs">“${popup.verse[0]}”<br>${popup.verse[1]}</p>
+    <p class="vs">“${esc(popup.verse.text)}”<br>${esc(popup.verse.ref)} (${esc(BIBLE_VERSION)})</p>
     <button class="btn" onclick="closePopup()">Amen! 🙌</button></div></div>`;
 }
 
@@ -936,7 +946,7 @@ function toggleMilestone(key) {
     const kindNow = kindOf(now), fr = key === "saved" ? fruitOf(now) : null;
     celebrate = "";
     if (fr) celebrateBig(fr.fruit, "🎉 Party in heaven!", esc(now.nick) + " has borne fruit: " + an(fr.name) + " after " + monthText(fr.months) + " of watering.", [fr.fruit, "🎉", "🥳", "✝️", "✨", "👼"],
-      ["Likewise, I say unto you, there is joy in the presence of the angels of God over one sinner that repenteth.", "Luke 15:10"]);
+      VERSE.party);
     else celebrateBig(m.icon, esc(now.nick) + ": " + m.label + "!", "🟤 A new ring for the tree." + (kindNow && kindNow !== kindBefore ? " It’s growing into " + an(kindNow.name) + "! " + kindNow.fruit : ""), [m.icon, "🎉", "🌿", "✨"]);
   });
 }
